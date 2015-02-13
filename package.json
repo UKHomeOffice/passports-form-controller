@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run lint && npm run unit",
-    "unit": "mocha --recursive test/spec/ --require test/helper",
+    "unit": "mocha --recursive test/spec/ --require test/helper --timeout 300000",
     "lint": "eslint ./lib/ ./index.js"
   },
   "repository": {

@@ -7,7 +7,6 @@ describe('Postcode validation - loads full UK postcode database, may take some t
     var testData;
 
     before(function (done) {
-        this.timeout(60000);
         PostcodeData.load(function (err, data) {
             testData = data;
             done(err);
@@ -15,7 +14,6 @@ describe('Postcode validation - loads full UK postcode database, may take some t
     });
 
     it('correctly validates uk postcodes', function () {
-        this.timeout(60000);
         function test(pc) {
             try {
                 Validators.postcode(pc).should.be.ok;
