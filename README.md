@@ -46,3 +46,8 @@ The Form class allows for a number of insertion points for extended functionalit
 * `saveValues`  To define what is done with successful form submissions
 
 All of these methods take three arguments of the request, the response and a callback. In all cases the callback should be called with a first argument representing an error.
+
+* `getErrors/setErrors` Define how errors are persisted between the POST and subsequent GET of a form step.
+* `locals` Define what additional variables a controller exposes to its template
+
+These methods are synchronous and take only the request and response obejct as arguments.
