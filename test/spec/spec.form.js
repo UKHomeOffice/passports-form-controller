@@ -116,19 +116,19 @@ describe('Form Controller', function () {
                 }
             });
             req = request({
-                path: '/index',
-                params: {},
-                flash: sinon.stub().returns([])
+                path: '/index'
             });
             res = {
                 render: sinon.stub()
             };
             cb = sinon.stub();
             sinon.stub(Form.prototype, 'getValues').yields(null, {});
+            sinon.stub(Form.prototype, 'getErrors').returns({});
         });
 
         afterEach(function () {
             Form.prototype.getValues.restore();
+            Form.prototype.getErrors.restore();
         });
 
         it('calls form.getValues', function () {
@@ -149,36 +149,10 @@ describe('Form Controller', function () {
             res.render.should.have.been.calledWith('index');
         });
 
-        it('passes the next page to the rendered template', function () {
-            form = new Form({ template: 'index', next: 'otherpage' });
-            form.get(req, res, cb);
-            res.render.args[0][1].nextPage.should.equal('otherpage');
-        });
-
         it('passes any errors to the rendered template', function () {
-            req.flash.returns([{ field: { message: 'error' } }]);
+            form.getErrors.returns({ field: { message: 'error' } });
             form.get(req, res, cb);
             res.render.args[0][1].errors.should.eql({ field: { message: 'error' } });
-        });
-
-        it('does not include errors from fields not in the form', function () {
-            req.flash.returns([
-                { field: { message: 'error' }, 'other-field': { message: 'error' } }
-            ]);
-            form.get(req, res, cb);
-            res.render.args[0][1].errors.should.eql({ field: { message: 'error' } });
-        });
-
-        it('includes errors from fields in forms "allowedErrors" list', function () {
-            req.flash.returns([
-                { field: { message: 'error' }, 'other-field': { message: 'error' } }
-            ]);
-            form.options.allowedErrors = ['other-field'];
-            form.get(req, res, cb);
-            res.render.args[0][1].errors.should.eql({
-                field: { message: 'error' },
-                'other-field': { message: 'error' }
-            });
         });
 
         it('passes output of getValues to the rendered template', function () {
@@ -196,35 +170,9 @@ describe('Form Controller', function () {
             cb.should.have.been.calledWithExactly({ error: 'message' });
         });
 
-        it('includes req.flash(`values`) in rendered response', function () {
-            req.flash.returns([{ 'other-values': [2] }]);
-            form.getValues.yields(null, { values: [1] });
-            form.get(req, res, cb);
-            res.render.args[0][1].values.should.eql({ values: [1], 'other-values': [2] });
-        });
-
         it('includes form options in rendered response', function () {
             form.get(req, res, cb);
             res.render.args[0][1].options.should.eql(form.options);
-        });
-
-        it('uses req.path as form action by default', function () {
-            form.get(req, res, cb);
-            res.render.args[0][1].action.should.equal('/index');
-        });
-
-        it('prefixes req.path with req.baseUrl if it is defined', function () {
-            req.baseUrl = '/base';
-            form.get(req, res, cb);
-            res.render.args[0][1].action.should.equal('/base/index');
-        });
-
-        it('uses action from getValues as form action if it exists', function () {
-            form.getValues.yields(null, {
-                action: '/custom-action'
-            });
-            form.get(req, res, cb);
-            res.render.args[0][1].action.should.equal('/custom-action');
         });
 
         it('emits "complete" event if form has no fields', function () {
@@ -494,17 +442,11 @@ describe('Form Controller', function () {
                 path: '/index',
                 form: {
                     values: { field: 'value' }
-                },
-                flash: sinon.stub()
+                }
             });
             res = {
                 redirect: sinon.stub()
             };
-        });
-
-        it('sets errors to `req.flash` if redirecting to self', function () {
-            form.errorHandler({ field: err }, req, res);
-            req.flash.should.have.been.calledWith('errors', { field: err });
         });
 
         it('redirects to req.path if no redirecting error is defined', function () {
