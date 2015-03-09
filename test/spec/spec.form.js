@@ -506,7 +506,7 @@ describe('Form Controller', function () {
                 });
             });
 
-            it('should *only* place errors against a single error key if the validator that created them belong to a group', function () {
+            it('should *only* place errors against a single error key if the validator that created them belongs to a group', function () {
                 var req = request({
                     flash: sinon.stub(),
                     form: {
