@@ -477,4 +477,57 @@ describe('Form Controller', function () {
 
     });
 
+    describe('_validate', function () {
+
+        describe('sharing of errors defined with grouped validators', function () {
+
+            var form;
+            beforeEach(function () {
+                form = new Form({
+                    template: 'index',
+                    next: 'error',
+                    fields: {
+                        'is-thing-a': {
+                            validate: [
+                                { 'type': 'required', 'group': 'is-thing' }
+                            ]
+                        },
+                        'is-thing-b': {
+                            validate: [
+                                { 'type': 'required', 'group': 'is-thing' }
+                            ]
+                        },
+                        'is-thing-c': {
+                            validate: [
+                                { 'type': 'required' }
+                            ]
+                        }
+                    }
+                });
+            });
+
+            it('should only place errors that belong to grouped validators into one error', function () {
+                var req = request({
+                    flash: sinon.stub(),
+                    form: {
+                        values: {
+                            'is-thing-a': '',
+                            'is-thing-b': '',
+                            'is-thing-c': ''
+                        }
+                    }
+                }), res = {};
+                var cb = sinon.stub();
+
+                form._validate(req, res, cb);
+                cb.should.be.calledWith({
+                    'is-thing': new form.Error('is-thing', { 'type': 'required' }),
+                    'is-thing-c': new form.Error('is-thing-c', { 'type': 'required' })
+                });
+            });
+
+        });
+
+    });
+
 });
