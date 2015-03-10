@@ -477,4 +477,142 @@ describe('Form Controller', function () {
 
     });
 
+    describe('_validate', function () {
+
+        describe('sharing of errors defined with validator groups', function () {
+
+            var form;
+            beforeEach(function () {
+                form = new Form({
+                    template: 'index',
+                    next: 'error',
+                    fields: {
+                        'is-thing-a': {
+                            validate: [
+                                { 'type': 'required', 'group': 'is-thing' }
+                            ]
+                        },
+                        'is-thing-b': {
+                            validate: [
+                                { 'type': 'required', 'group': 'is-thing' }
+                            ]
+                        },
+                        'is-thing-c': {
+                            validate: [
+                                { 'type': 'required' }
+                            ]
+                        }
+                    }
+                });
+            });
+
+            it('should *only* place errors against a single error key if the validator that created them belongs to a group', function () {
+                var req = request({
+                    flash: sinon.stub(),
+                    form: {
+                        values: {
+                            'is-thing-a': '',
+                            'is-thing-b': '',
+                            'is-thing-c': ''
+                        }
+                    }
+                }), res = {};
+                var cb = sinon.stub();
+
+                form._validate(req, res, cb);
+                cb.should.be.calledWith({
+                    'is-thing': new form.Error('is-thing', { 'type': 'required' }),
+                    'is-thing-c': new form.Error('is-thing-c', { 'type': 'required' })
+                });
+            });
+
+        });
+
+        describe('dependent fields', function () {
+
+            var form, oldFormatters;
+            beforeEach(function () {
+                oldFormatters = _.clone(Form.formatters);
+                Form.formatters = _.extend(Form.formatters, {
+                    'boolean-force': function booleanforce(value) {
+                        var state;
+                        if (value === true || value === 'true') {
+                            state = true;
+                        } else if (value === false || value === 'false') {
+                            state = false;
+                        } else {
+                            state = undefined;
+                        }
+
+                        return !!state;
+                    }
+                });
+                form = new Form({
+                    template: 'index',
+                    next: 'error',
+                    fields: {
+                        'is-thing': {
+                            formatter: 'boolean-force',
+                            validate: [
+                                'required'
+                            ]
+                        },
+                        'is-thing-b': {
+                            formatter: 'boolean-force',
+                            validate: [
+                                'required'
+                            ],
+                            dependent: {
+                                field: 'is-thing',
+                                value: 'true'
+                            }
+                        },
+                        'is-thing-notes': {
+                            validate: [
+                                'required'
+                            ],
+                            dependent: {
+                                field: 'is-thing',
+                                value: 'true'
+                            }
+                        }
+                    }
+                });
+            });
+
+            afterEach(function () {
+                Form.formatters = oldFormatters;
+            });
+
+            it('should clean the values with an appropriately formatted empty value if a dependency is not met', function () {
+                var req = request({
+                    flash: sinon.stub(),
+                    form: {
+                        values: {
+                            // Some preformatted booleans come in.
+                            'is-thing': false,
+                            'is-thing-b': true,
+                            'is-thing-notes': 'some notes'
+                        }
+                    }
+                }), res = {};
+                var cb = sinon.stub();
+
+                form._validate(req, res, cb);
+                cb.should.not.be.calledWithMatch({});
+
+                // Notice how the string which misses its dependency is
+                // formatted to an empty string, while the boolean-force formatted
+                // field that can only equal true or false becomes false.
+                req.form.values.should.eql({
+                    'is-thing': false,
+                    'is-thing-b': false,
+                    'is-thing-notes': ''
+                });
+            });
+
+        });
+
+    });
+
 });
