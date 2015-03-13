@@ -226,6 +226,7 @@ describe('Form Controller', function () {
             });
             res = {};
             sinon.stub(Form.prototype, 'validate').yields(null);
+            sinon.stub(Form.prototype, 'setErrors');
             sinon.stub(Form.prototype, 'saveValues').yields(null);
             sinon.stub(Form.prototype, 'successHandler');
             _.each(validators, function (fn, key) {
@@ -235,6 +236,7 @@ describe('Form Controller', function () {
 
         afterEach(function () {
             Form.prototype.validate.restore();
+            Form.prototype.setErrors.restore();
             Form.prototype.saveValues.restore();
             Form.prototype.successHandler.restore();
             _.each(validators, function (fn, key) {
@@ -251,6 +253,11 @@ describe('Form Controller', function () {
                 'bool',
                 'options'
             ]);
+        });
+
+        it('sets errors to null', function () {
+            form.post(req, res, cb);
+            form.setErrors.should.have.been.calledWithExactly(null, req, res);
         });
 
         it('call callback with error if _process fails', function () {
