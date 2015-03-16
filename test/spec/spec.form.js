@@ -119,16 +119,19 @@ describe('Form Controller', function () {
                 path: '/index'
             });
             res = {
-                render: sinon.stub()
+                render: sinon.stub(),
+                locals: {}
             };
             cb = sinon.stub();
             sinon.stub(Form.prototype, 'getValues').yields(null, {});
             sinon.stub(Form.prototype, 'getErrors').returns({});
+            sinon.stub(Form.prototype, 'render');
         });
 
         afterEach(function () {
             Form.prototype.getValues.restore();
             Form.prototype.getErrors.restore();
+            Form.prototype.render.restore();
         });
 
         it('calls form.getValues', function () {
@@ -137,29 +140,23 @@ describe('Form Controller', function () {
             form.getValues.should.have.been.calledOn(form);
         });
 
-        it('renders the provided template', function () {
-            form = new Form({ template: 'test' });
+        it('calls form.render', function () {
             form.get(req, res, cb);
-            res.render.should.have.been.calledWith('test');
-        });
-
-        it('if path is "/" and no template is provided uses "index for template', function () {
-            form = new Form({ template: 'index' });
-            form.get(req, res, cb);
-            res.render.should.have.been.calledWith('index');
+            form.render.should.have.been.calledOnce;
+            form.render.should.have.been.calledWithExactly(req, res, cb);
         });
 
         it('passes any errors to the rendered template', function () {
             form.getErrors.returns({ field: { message: 'error' } });
             form.get(req, res, cb);
-            res.render.args[0][1].errors.should.eql({ field: { message: 'error' } });
+            res.locals.errors.should.eql({ field: { message: 'error' } });
         });
 
         it('passes output of getValues to the rendered template', function () {
             req.flash.returns([]);
             form.getValues.yields(null, { values: [1] });
             form.get(req, res, cb);
-            res.render.args[0][1].values.should.eql({ values: [1] });
+            res.locals.values.should.eql({ values: [1] });
         });
 
         it('calls callback with error if getValues fails', function () {
@@ -172,7 +169,7 @@ describe('Form Controller', function () {
 
         it('includes form options in rendered response', function () {
             form.get(req, res, cb);
-            res.render.args[0][1].options.should.eql(form.options);
+            res.locals.options.should.eql(form.options);
         });
 
         it('emits "complete" event if form has no fields', function () {
@@ -398,6 +395,31 @@ describe('Form Controller', function () {
                 cb.should.have.been.calledWith({ field: 'invalid' });
             });
 
+        });
+
+    });
+
+    describe('render', function () {
+
+        var form, req, res, cb;
+
+        beforeEach(function () {
+            form = new Form({
+                template: 'index',
+                next: '/next',
+                fields: {
+                    field: 'name'
+                }
+            });
+            res = {
+                render: sinon.stub()
+            };
+            cb = sinon.stub();
+        });
+
+        it('renders the provided template', function () {
+            form.render(req, res, cb);
+            res.render.should.have.been.calledWith('index');
         });
 
     });
