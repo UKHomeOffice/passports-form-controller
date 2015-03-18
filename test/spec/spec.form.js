@@ -140,6 +140,12 @@ describe('Form Controller', function () {
             form.getValues.should.have.been.calledOn(form);
         });
 
+        it('sets values to req.form.values', function () {
+            Form.prototype.getValues.yields(null, { foo: 'bar' });
+            form.get(req, res, cb);
+            req.form.values.should.eql({ foo: 'bar' });
+        });
+
         it('calls form.render', function () {
             form.get(req, res, cb);
             form.render.should.have.been.calledOnce;
