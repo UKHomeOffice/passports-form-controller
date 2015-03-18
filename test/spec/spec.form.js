@@ -146,6 +146,12 @@ describe('Form Controller', function () {
             req.form.values.should.eql({ foo: 'bar' });
         });
 
+        it('defaults req.form.values to an empty object', function () {
+            Form.prototype.getValues.yields(null);
+            form.get(req, res, cb);
+            req.form.values.should.eql({ });
+        });
+
         it('calls form.render', function () {
             form.get(req, res, cb);
             form.render.should.have.been.calledOnce;
