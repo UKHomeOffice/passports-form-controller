@@ -56,4 +56,4 @@ These methods are synchronous and take only the request and response obejct as a
 
 The library [supports a number of validators](https://github.com/UKHomeOffice/passports-form-controller/blob/master/lib/validation/validators.js).
 
-By default the application of a validator is optional on empty strings. If you need to ensure that is validated as being 9 characters long and exists then you need to use both an `exactlength` and a `required` validator.
+By default the application of a validator is optional on empty strings. If you need to ensure a field is validated as being 9 characters long and exists then you need to use both an `exactlength` and a `required` validator.
