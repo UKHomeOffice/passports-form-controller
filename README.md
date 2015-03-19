@@ -51,3 +51,9 @@ All of these methods take three arguments of the request, the response and a cal
 * `locals` Define what additional variables a controller exposes to its template
 
 These methods are synchronous and take only the request and response obejct as arguments.
+
+### Validators
+
+The library [supports a number of validators](https://github.com/UKHomeOffice/passports-form-controller/blob/master/lib/validation/validators.js).
+
+By default the application of a validator is optional on empty strings. If you need to ensure that is validated as being 9 characters long and exists then you need to use both an `exactlength` and a `required` validator.

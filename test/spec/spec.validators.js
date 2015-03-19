@@ -76,6 +76,7 @@ describe('Validators', function () {
 
         describe('valid values', function () {
             var inputs = [
+                '',
                 't@i.co',
                 'test@example.com',
                 'test+suffix@gmail.com',
@@ -97,7 +98,6 @@ describe('Validators', function () {
             var inputs = [
                 [undefined, 1],
                 [100, 1],
-                ['', 1],
                 ['asdf', 10],
                 ['asdf', 5]
             ];
@@ -110,6 +110,7 @@ describe('Validators', function () {
 
         describe('valid values', function () {
             var inputs = [
+                ['', 9],
                 ['asdfasdfasdf', 10],
                 ['t']
             ];
@@ -141,6 +142,7 @@ describe('Validators', function () {
 
         describe('valid values', function () {
             var inputs = [
+                ['', 9],
                 ['asdfasdf', 10],
                 ['123', 4]
             ];
@@ -170,6 +172,7 @@ describe('Validators', function () {
 
         describe('valid values', function () {
             var inputs = [
+                ['', 9],
                 ['123', 3]
             ];
             _.each(inputs, function (i) {
@@ -200,6 +203,7 @@ describe('Validators', function () {
 
         describe('valid values', function () {
             var inputs = [
+                ['', 'Adam Smith'],
                 ['John Smith', 'John Smith'],
                 [10, 10],
                 [true, true],
@@ -234,6 +238,7 @@ describe('Validators', function () {
 
         describe('valid values', function () {
             var inputs = [
+                '',
                 '123',
                 '123456',
                 '1234567890',
@@ -277,6 +282,7 @@ describe('Validators', function () {
 
         describe('valid values', function () {
             var inputs = [
+                '',
                 '07812123456'
             ];
             _.each(inputs, function (i) {
@@ -308,6 +314,7 @@ describe('Validators', function () {
 
         describe('valid values', function () {
             var inputs = [
+                '',
                 '1980-02-29'
             ];
             _.each(inputs, function (i) {
@@ -345,6 +352,7 @@ describe('Validators', function () {
 
         describe('valid values', function () {
             var inputs = [
+                '',
                 '1980-02-29',
                 '2014-11-05',
                 ['2014-11-04', 1, 'day'],
@@ -392,6 +400,7 @@ describe('Validators', function () {
 
         describe('valid inputs', function () {
             var inputs = [
+                ['', '2014-12-15'],
                 ['2014-12-16', '2014-12-15'],
                 ['2014-11-05', 1, 'day'],
                 ['1993-11-06', 21, 'years'],
@@ -457,6 +466,7 @@ describe('Validators', function () {
 
         describe('valid values', function () {
             var inputs = [
+                '',
                 '1'
             ];
             _.each(inputs, function (i) {
