@@ -165,14 +165,12 @@ describe('Form Controller', function () {
         });
 
         it('passes output of getValues to the rendered template', function () {
-            req.flash.returns([]);
             form.getValues.yields(null, { values: [1] });
             form.get(req, res, cb);
             res.locals.values.should.eql({ values: [1] });
         });
 
         it('calls callback with error if getValues fails', function () {
-            req.flash.returns([]);
             form.getValues.yields({ error: 'message' });
             form.get(req, res, cb);
             cb.should.have.been.calledOnce;
@@ -441,7 +439,7 @@ describe('Form Controller', function () {
         var form, req, res;
 
         beforeEach(function () {
-            form = new Form({ template: 'index', next: 'success' });
+            form = new Form({ template: 'index', next: '/success' });
             req = request({
                 params: {},
                 body: { field: 'value' },
@@ -454,13 +452,13 @@ describe('Form Controller', function () {
 
         it('redirects to `next` page', function () {
             form.successHandler(req, res);
-            res.redirect.should.have.been.calledWith('success');
+            res.redirect.should.have.been.calledWith('/success');
         });
 
         it('prefixes redirect url with req.baseUrl', function () {
-            req.baseUrl = 'base/';
+            req.baseUrl = '/base';
             form.successHandler(req, res);
-            res.redirect.should.have.been.calledWith('base/success');
+            res.redirect.should.have.been.calledWith('/base/success');
         });
 
         it('emits "complete" event', function () {
@@ -478,7 +476,7 @@ describe('Form Controller', function () {
 
         beforeEach(function () {
             err = new Form.Error('field');
-            form = new Form({ template: 'index', next: 'success' });
+            form = new Form({ template: 'index', next: '/success' });
             req = request({
                 path: '/index',
                 form: {
