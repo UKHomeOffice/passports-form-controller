@@ -116,7 +116,8 @@ describe('Form Controller', function () {
                 }
             });
             req = request({
-                path: '/index'
+                path: '/index',
+                baseUrl: '/base'
             });
             res = {
                 render: sinon.stub(),
@@ -200,6 +201,15 @@ describe('Form Controller', function () {
             delete form.options.next;
             form.get(req, res, cb);
             form.emit.withArgs('complete').should.not.have.been.called;
+        });
+
+        it('sets the action property on res.locals', function () {
+            form.get(req, res, cb);
+            res.locals.action.should.equal('/base/index');
+
+            req.baseUrl = '/';
+            form.get(req, res, cb);
+            res.locals.action.should.equal('/index');
         });
 
     });
