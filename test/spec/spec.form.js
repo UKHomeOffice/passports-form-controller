@@ -104,6 +104,15 @@ describe('Form Controller', function () {
                 });
             });
 
+            it('throws a 405 on unsupported methods', function (done) {
+                req.method = 'PUT';
+                handler = form.requestHandler();
+                handler(req, res, function (err) {
+                    err.statusCode.should.equal(405);
+                    done();
+                });
+            });
+
         });
 
     });
