@@ -45,11 +45,10 @@ describe('Form Controller', function () {
 
         beforeEach(function () {
             form = new Form({ template: 'index' });
-            sinon.stub(form, 'get');
-            sinon.stub(form, 'post');
+            sinon.stub(form, 'get').yields();
+            sinon.stub(form, 'post').yields();
             // use a spy instead of a stub so that the length is unaffected
             sinon.spy(form, 'errorHandler');
-            handler = form.requestHandler();
             req = request({
                 params: {}
             }),
@@ -67,6 +66,7 @@ describe('Form Controller', function () {
 
             it('calls form.get in response to get requests', function () {
                 req.method = 'GET';
+                handler = form.requestHandler();
                 handler(req, res, cb);
                 form.get.should.have.been.calledWith(req, res);
                 form.get.should.have.been.calledOn(form);
@@ -74,6 +74,7 @@ describe('Form Controller', function () {
 
             it('calls form.post in response to post requests', function () {
                 req.method = 'POST';
+                handler = form.requestHandler();
                 handler(req, res, cb);
                 form.post.should.have.been.calledWith(req, res);
                 form.post.should.have.been.calledOn(form);
@@ -82,10 +83,23 @@ describe('Form Controller', function () {
             it('calls error handler if method calls back with an error', function (done) {
                 req.method = 'POST';
                 form.post.yields({ error: 'message' });
+                handler = form.requestHandler();
                 handler(req, res, function () {
                     form.errorHandler.should.have.been.calledOnce;
                     form.errorHandler.should.have.been.calledWith({ error: 'message' }, req, res);
                     form.errorHandler.should.have.been.calledOn(form);
+                    done();
+                });
+            });
+
+            it('calls any additional middlewares before invoking request handlers', function (done) {
+                var middleware = sinon.stub().yields();
+                req.method = 'GET';
+                form.use(middleware);
+                handler = form.requestHandler();
+                handler(req, res, function () {
+                    middleware.should.have.been.calledWith(req, res);
+                    middleware.should.have.been.calledBefore(form.get);
                     done();
                 });
             });
