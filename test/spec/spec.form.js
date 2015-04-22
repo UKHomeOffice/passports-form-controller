@@ -47,7 +47,9 @@ describe('Form Controller', function () {
             form = new Form({ template: 'index' });
             sinon.stub(form, 'get');
             sinon.stub(form, 'post');
-            sinon.stub(form, 'errorHandler');
+            // use a spy instead of a stub so that the length is unaffected
+            sinon.spy(form, 'errorHandler');
+            handler = form.requestHandler();
             req = request({
                 params: {}
             }),
@@ -55,7 +57,6 @@ describe('Form Controller', function () {
                 send: sinon.stub()
             };
             cb = function callback() {};
-            handler = form.requestHandler();
         });
 
         it('returns a function', function () {
@@ -78,25 +79,15 @@ describe('Form Controller', function () {
                 form.post.should.have.been.calledOn(form);
             });
 
-            it('sends error in response to put requests', function () {
-                req.method = 'PUT';
-                handler(req, res, cb);
-                res.send.should.have.been.calledWith(405);
-            });
-
-            it('sends error in response to delete requests', function () {
-                req.method = 'DELETE';
-                handler(req, res, cb);
-                res.send.should.have.been.calledWith(405);
-            });
-
-            it('calls error handler if method calls back with an error', function () {
+            it('calls error handler if method calls back with an error', function (done) {
                 req.method = 'POST';
                 form.post.yields({ error: 'message' });
-                handler(req, res, cb);
-                form.errorHandler.should.have.been.calledOnce;
-                form.errorHandler.should.have.been.calledWith({ error: 'message' }, req, res, cb);
-                form.errorHandler.should.have.been.calledOn(form);
+                handler(req, res, function () {
+                    form.errorHandler.should.have.been.calledOnce;
+                    form.errorHandler.should.have.been.calledWith({ error: 'message' }, req, res);
+                    form.errorHandler.should.have.been.calledOn(form);
+                    done();
+                });
             });
 
         });
