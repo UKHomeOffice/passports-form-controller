@@ -50,6 +50,7 @@ describe('Form Controller', function () {
             // use a spy instead of a stub so that the length is unaffected
             sinon.spy(form, 'errorHandler');
             req = request({
+                url: '/test',
                 params: {}
             }),
             res = {
