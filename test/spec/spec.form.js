@@ -105,6 +105,22 @@ describe('Form Controller', function () {
                 });
             });
 
+            it('keeps url params from parent routers', function (done) {
+                req.method = 'GET';
+                req.url = '/test/123';
+                var router = require('express').Router();
+                form.use(function (req, res, next) {
+                    try {
+                        req.params.id.should.equal('123');
+                        next();
+                    } catch(e) {
+                        done(e);
+                    }
+                });
+                router.route('/test/:id').all(form.requestHandler());
+                router(req, res, done);
+            });
+
             it('throws a 405 on unsupported methods', function (done) {
                 req.method = 'PUT';
                 handler = form.requestHandler();
