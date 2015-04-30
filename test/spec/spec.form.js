@@ -187,7 +187,7 @@ describe('Form Controller', function () {
         it('calls form.render', function () {
             form.get(req, res, cb);
             form.render.should.have.been.calledOnce;
-            form.render.should.have.been.calledWithExactly(req, res, cb);
+            form.render.should.have.been.calledWith(req, res);
         });
 
         it('passes any errors to the rendered template', function () {
@@ -206,7 +206,7 @@ describe('Form Controller', function () {
             form.getValues.yields({ error: 'message' });
             form.get(req, res, cb);
             cb.should.have.been.calledOnce;
-            cb.should.have.been.calledWithExactly({ error: 'message' });
+            cb.should.have.been.calledWith({ error: 'message' });
         });
 
         it('includes form options in rendered response', function () {
