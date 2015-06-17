@@ -34,4 +34,11 @@ describe('Postcode validation - loads full UK postcode database, may take some t
         });
     });
 
+    it('correctly rejects invalid postcodes', function () {
+
+        Validators.postcode('A11AA A11AA').should.not.be.ok;
+        Validators.postcode('N443 6DFG').should.not.be.ok;
+
+    });
+
 });
