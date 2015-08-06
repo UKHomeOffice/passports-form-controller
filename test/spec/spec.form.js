@@ -610,7 +610,8 @@ describe('Form Controller', function () {
 
         describe('dependent fields', function () {
 
-            var form, oldFormatters;
+            var form, oldFormatters, req, res, cb;
+
             beforeEach(function () {
                 oldFormatters = _.clone(Form.formatters);
                 Form.formatters = _.extend(Form.formatters, {
@@ -627,6 +628,15 @@ describe('Form Controller', function () {
                         return !!state;
                     }
                 });
+                res = {};
+                cb = sinon.stub();
+            });
+
+            afterEach(function () {
+                Form.formatters = oldFormatters;
+            });
+
+            it('should clean the values with an appropriately formatted empty value if a dependency is not met', function () {
                 form = new Form({
                     template: 'index',
                     next: 'error',
@@ -658,14 +668,7 @@ describe('Form Controller', function () {
                         }
                     }
                 });
-            });
-
-            afterEach(function () {
-                Form.formatters = oldFormatters;
-            });
-
-            it('should clean the values with an appropriately formatted empty value if a dependency is not met', function () {
-                var req = request({
+                req = request({
                     flash: sinon.stub(),
                     form: {
                         values: {
@@ -675,8 +678,7 @@ describe('Form Controller', function () {
                             'is-thing-notes': 'some notes'
                         }
                     }
-                }), res = {};
-                var cb = sinon.stub();
+                });
 
                 form._validate(req, res, cb);
                 cb.should.not.be.calledWithMatch({});
@@ -689,6 +691,112 @@ describe('Form Controller', function () {
                     'is-thing-b': false,
                     'is-thing-notes': ''
                 });
+            });
+
+            it('should be validated if the dependency exists in the step\'s fields and the value matches', function () {
+                form = new Form({
+                    template: 'index',
+                    fields: {
+                        'is-thing': {
+                            validate: [
+                                'required'
+                            ]
+                        },
+                        'is-thing-b': {
+                            validate: [
+                                'required'
+                            ],
+                            dependent: {
+                                field: 'is-thing',
+                                value: 'true'
+                            }
+                        }
+                    }
+                });
+
+                req = request({
+                    form: {
+                        values: {
+                            'is-thing': 'true',
+                            'is-thing-b': ''
+                        }
+                    }
+                });
+
+                form._validate(req, res, cb);
+                cb.should.have.been.calledWith({
+                    'is-thing-b': new form.Error('is-thing-b', { type: 'required' })
+                });
+            });
+
+            it('should be validated if the dependency doesn\'t exist in the step\'s fields', function () {
+                form = new Form({
+                    template: 'index',
+                    fields: {
+                        'is-thing': {
+                            validate: [
+                                'required'
+                            ]
+                        },
+                        'is-thing-b': {
+                            validate: [
+                                'required'
+                            ],
+                            dependent: {
+                                field: 'is-not-a-thing',
+                                value: 'true'
+                            }
+                        }
+                    }
+                });
+
+                req = request({
+                    form: {
+                        values: {
+                            'is-thing': 'true',
+                            'is-thing-b': ''
+                        }
+                    }
+                });
+
+                form._validate(req, res, cb);
+                cb.should.have.been.calledWith({
+                    'is-thing-b': new form.Error('is-thing-b', { type: 'required' })
+                });
+            });
+
+            it('shouldn\'t be validated if the dependency exists but the value doesn\'t match', function () {
+                form = new Form({
+                    template: 'index',
+                    fields: {
+                        'is-thing': {
+                            validate: [
+                                'required'
+                            ]
+                        },
+                        'is-thing-b': {
+                            validate: [
+                                'required'
+                            ],
+                            dependent: {
+                                field: 'is-thing',
+                                value: 'false'
+                            }
+                        }
+                    }
+                });
+
+                req = request({
+                    form: {
+                        values: {
+                            'is-thing': 'false',
+                            'is-thing-b': ''
+                        }
+                    }
+                });
+
+                form._validate(req, res, cb);
+                cb.should.have.been.calledWith();
             });
 
         });
