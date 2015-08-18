@@ -801,6 +801,66 @@ describe('Form Controller', function () {
 
         });
 
+        describe('validators with redirects', function () {
+
+            var form, req, res, cb;
+
+            beforeEach(function () {
+                form = new Form({
+                    template: 'index',
+                    fields: {
+                        'is-thing-a': {
+                            validate: 'required'
+                        },
+                        'is-thing-b': {
+                            validate: [
+                                { type: 'required', redirect: '/exit-page' }
+                            ]
+                        },
+                        'is-thing-c': {
+                            validate: 'required'
+                        }
+                    }
+                });
+                res = {};
+                cb = sinon.stub();
+            });
+
+            it('only calls callback with errors that don\'t have a redirect value if they exist', function () {
+                req = request({
+                    form: {
+                        values: {
+                            'is-thing-a': '',
+                            'is-thing-b': '',
+                            'is-thing-c': '',
+                        }
+                    }
+                });
+                form._validate(req, res, cb);
+                cb.should.be.calledWith({
+                    'is-thing-a': new form.Error('is-thing-a', { type: 'required' }),
+                    'is-thing-c': new form.Error('is-thing-c', { type: 'required' })
+                });
+            });
+
+            it('calls callback with all errors if they all contain a redirect value', function () {
+                req = request({
+                    form: {
+                        values: {
+                            'is-thing-a': 'value',
+                            'is-thing-b': '',
+                            'is-thing-c': 'value'
+                        }
+                    }
+                });
+                form._validate(req, res, cb);
+                cb.should.have.been.calledWith({
+                    'is-thing-b': new form.Error('is-thing-b', { type: 'required', redirect: '/exit-page' })
+                });
+            });
+
+        });
+
     });
 
 });
