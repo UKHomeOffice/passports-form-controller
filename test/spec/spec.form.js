@@ -535,7 +535,16 @@ describe('Form Controller', function () {
             res.redirect.should.have.been.calledWith('/index');
         });
 
-        it('redirects to error redirect if any error has a redirect property', function () {
+        it('redirects to req.path if not all errors have a redirect value', function () {
+            err = {
+                'field-a': new Form.Error('field-a'),
+                'field-b': new Form.Error('field-b', { redirect: '/exitpage' })
+            };
+            form.errorHandler(err, req, res);
+            res.redirect.should.have.been.calledWith('/index');
+        });
+
+        it('redirects to error redirect if all errors have a redirect value', function () {
             err.redirect = '/exitpage';
             form.errorHandler({ field: err }, req, res);
             res.redirect.should.have.been.calledWith('/exitpage');
