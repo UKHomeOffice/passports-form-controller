@@ -433,6 +433,29 @@ describe('Form Controller', function () {
                 validators.email.should.not.have.been.called;
             });
 
+            it('creates instances of Error class with validation errors', function (done) {
+                validators.required.returns(false);
+                req.body = { field: 'value', email: 'foo', name: 'John' };
+                form.post(req, res, function (err) {
+                    _.each(err, function (e) {
+                        e.should.be.an.instanceOf(form.Error);
+                    });
+                    done();
+                });
+            });
+
+            it('passes the request object into error constructor', function (done) {
+                sinon.stub(form, 'Error');
+                validators.required.returns(false);
+                req.body = { field: 'value', email: 'foo', name: 'John' };
+                form.post(req, res, function (err) {
+                    form.Error.should.have.been.calledWithExactly('field', sinon.match({ type: 'required' }), req);
+                    form.Error.should.have.been.calledWithExactly('email', sinon.match({ type: 'required' }), req);
+                    form.Error.should.have.been.calledWithExactly('name', sinon.match({ type: 'required' }), req);
+                    done();
+                });
+            });
+
         });
 
         describe('invalid form-level validation', function () {
