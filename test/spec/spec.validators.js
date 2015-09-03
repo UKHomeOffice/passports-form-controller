@@ -326,6 +326,111 @@ describe('Validators', function () {
 
     });
 
+    describe('date-year', function () {
+
+        describe('invalid values', function () {
+            var inputs = [
+                '',
+                '01',
+                'abc',
+                'ABC123',
+                '2oo5',
+                '-2015',
+                2015,
+                -2015
+            ];
+            _.each(inputs, function (i) {
+                it(testName(i), function () {
+                    Validators['date-year'](i).should.not.be.ok;
+                });
+            });
+        });
+
+        describe('valid values', function () {
+            var inputs = [
+                '0000',
+                '0001',
+                '2015',
+                '9999'
+            ];
+            _.each(inputs, function (i) {
+                it(testName(i), function () {
+                    Validators['date-year'](i).should.be.ok;
+                });
+            });
+        });
+
+    });
+
+    describe('date-month', function () {
+
+        describe('invalid values', function () {
+            var inputs = [
+                '',
+                '0',
+                '13',
+                'Jan',
+                '1',
+                '-1',
+                1,
+                -12
+            ];
+            _.each(inputs, function (i) {
+                it(testName(i), function () {
+                    Validators['date-month'](i).should.not.be.ok;
+                });
+            });
+        });
+
+        describe('valid values', function () {
+            var inputs = [
+                '01',
+                '12',
+            ];
+            _.each(inputs, function (i) {
+                it(testName(i), function () {
+                    Validators['date-month'](i).should.be.ok;
+                });
+            });
+        });
+
+    });
+
+    describe('date-day', function () {
+
+        describe('invalid values', function () {
+            var inputs = [
+                '0',
+                '32',
+                '001',
+                '-1',
+                1,
+                -10
+            ];
+            _.each(inputs, function (i) {
+                it(testName(i), function () {
+                    Validators['date-day'](i).should.not.be.ok;
+                });
+            });
+        });
+
+        describe('valid values', function () {
+            var inputs = [
+                '01',
+                '28',
+                '29',
+                '30',
+                '31'
+            ];
+            _.each(inputs, function (i) {
+                it(testName(i), function () {
+                    Validators['date-day'](i).should.be.ok;
+                });
+            });
+        });
+
+    });
+
     describe('before', function () {
 
         // note date is set to 2014-11-05T15:09:00Z in all tests
