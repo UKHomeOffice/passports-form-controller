@@ -444,14 +444,14 @@ describe('Form Controller', function () {
                 });
             });
 
-            it('passes the request object into error constructor', function (done) {
+            it('passes request and response objects into error constructor', function (done) {
                 sinon.stub(form, 'Error');
                 validators.required.returns(false);
                 req.body = { field: 'value', email: 'foo', name: 'John' };
                 form.post(req, res, function (err) {
-                    form.Error.should.have.been.calledWithExactly('field', sinon.match({ type: 'required' }), req);
-                    form.Error.should.have.been.calledWithExactly('email', sinon.match({ type: 'required' }), req);
-                    form.Error.should.have.been.calledWithExactly('name', sinon.match({ type: 'required' }), req);
+                    form.Error.should.have.been.calledWithExactly('field', sinon.match({ type: 'required' }), req, res);
+                    form.Error.should.have.been.calledWithExactly('email', sinon.match({ type: 'required' }), req, res);
+                    form.Error.should.have.been.calledWithExactly('name', sinon.match({ type: 'required' }), req, res);
                     done();
                 });
             });
