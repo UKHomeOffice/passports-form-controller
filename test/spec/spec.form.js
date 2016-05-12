@@ -524,6 +524,10 @@ describe('Form Controller', function () {
 
         describe('forking journeys', function () {
 
+            beforeEach(function () {
+                req.method = 'POST';
+            });
+
             it('returns the fork target if the condition config is met', function () {
                 req.form.values['example-radio'] = 'conditionMet';
                 form.options.forks = [{
