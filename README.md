@@ -57,3 +57,68 @@ These methods are synchronous and take only the request and response obejct as a
 The library [supports a number of validators](https://github.com/UKHomeOffice/passports-form-controller/blob/master/lib/validation/validators.js).
 
 By default the application of a validator is optional on empty strings. If you need to ensure a field is validated as being 9 characters long and exists then you need to use both an `exactlength` and a `required` validator.
+
+### steps config
+
+#### Handles journey forking
+
+Each step definition accepts a `next` property, the value of which is the next route in the journey. By default, when the form is successfully submitted, the next steps will load. However, there are times when it is necessary to fork from the current journey based on a users response to certain questions in a form. For such circumstances there exists the `forks` property.
+
+In this example, when the submits the form, if the field called 'example-radio' has the value 'superman', the page at '/fork-page' will load, otherwise '/next-page' will be loaded.
+
+```js
+
+'/my-page': {
+    next: '/next-page',
+    forks: [{
+        target: '/fork-page',
+        condition: {
+            field: 'example-radio',
+            value: 'superman'
+        }
+    }]
+}
+```
+
+The condition property can also take a function. In the following example, if the field called 'name' is more than 30 characters in length, the page at '/fork-page' will be loaded.
+
+```js
+
+'/my-page': {
+    next: '/next-page',
+    forks: [{
+        target: '/fork-page',
+        condition: function (req, res) {
+            return req.form.values['name'].length > 30;
+        }
+    }]
+}
+```
+
+Forks is an array and therefore each fork is interrogated in order from top to bottom. The last fork whose condition is met will assign its target to the next page variable.
+
+In this example, if the last condition resolves to true - even if the others also resolve to true - then the page at '/fork-page-three' will be loaded. The last condition to be met is always the fork used to determine the next step.
+
+```js
+
+'/my-page': {
+    next: '/next-page',
+    forks: [{
+        target: '/fork-page-one',
+        condition: function (req, res) {
+            return req.form.values['name'].length > 30;
+        }
+    }, {
+        target: '/fork-page-two',
+        condition: {
+            field: 'example-radio',
+            value: 'superman'
+        }
+    }, {
+        target: '/fork-page-three',
+        condition: function (req, res) {
+            return typeof req.form.values['email'] === 'undefined';
+        }
+    }]
+}
+```
