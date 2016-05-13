@@ -522,6 +522,18 @@ describe('Form Controller', function () {
             form.getNextStep(req, res).should.be.equal('/base/next-page');
         });
 
+        it('treats double slash next urls as absolute', function () {
+            form.options.next = '//absolute-next-page'
+            req.baseUrl = '/base';
+            form.getNextStep(req, res).should.be.equal('/absolute-next-page');
+        });
+
+        it('treats full https? urls as absolute', function () {
+            form.options.next = 'https://www.example.com'
+            req.baseUrl = '/base';
+            form.getNextStep(req, res).should.be.equal('https://www.example.com');
+        });
+
         describe('forking journeys', function () {
 
             it('returns the fork target if the condition config is met', function () {
