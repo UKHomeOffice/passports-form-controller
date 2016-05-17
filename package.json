@@ -4,9 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npm run lint && npm run unit",
+    "test": "npm run lint && npm run unit && npm run cover && npm run check-coverage && npm run snyk",
     "unit": "mocha --recursive test/spec/ --require test/helper --timeout 300000",
-    "lint": "eslint ./lib/ ./index.js"
+    "cover": "istanbul cover _mocha -- -R dot --recursive test/spec/ --require test/helper --timeout 300000",
+    "check-coverage": "istanbul check-coverage --statement 98.31 --branch 94.89 --function 96.30 --line 98.31",
+    "lint": "eslint .",
+    "snyk": "snyk test --dev"
   },
   "repository": {
     "type": "git",
@@ -25,14 +28,16 @@
     "underscore": "^1.7.0"
   },
   "devDependencies": {
-    "chai": "^1.10.0",
+    "chai": "^3.5.0",
     "concat-stream": "^1.4.7",
-    "csv": "^0.4.1",
-    "eslint": "^0.14.1",
+    "csv": "^1.1.0",
+    "eslint": "^2.10.2",
+    "istanbul": "^0.4.3",
     "mocha": "^2.1.0",
     "postcode": "0.2.2",
     "reqres": "^1.1.1",
     "sinon": "^1.12.2",
-    "sinon-chai": "^2.6.0"
+    "sinon-chai": "^2.6.0",
+    "snyk": "^1.14.3"
   }
 }

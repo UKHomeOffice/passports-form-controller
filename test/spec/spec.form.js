@@ -113,7 +113,7 @@ describe('Form Controller', function () {
                     try {
                         req.params.id.should.equal('123');
                         next();
-                    } catch(e) {
+                    } catch (e) {
                         done(e);
                     }
                 });
@@ -292,6 +292,30 @@ describe('Form Controller', function () {
             });
         });
 
+        it('returns an error if an unknown validator is specified', function () {
+            var form = new Form({
+                template: 'index',
+                fields: {
+                    field: { validate: 'unknown' }
+                }
+            });
+            form.post(req, res, cb);
+            cb.should.have.been.calledWithExactly(new Error('Undefined validator:unknown'));
+        });
+
+        it('ignores an unkown formatter', function () {
+            var form = new Form({
+                template: 'index',
+                fields: {
+                    field: { formatter: 'unknown' }
+                }
+            });
+            var fn = function () {
+                form.post(req, res, cb);
+            };
+            fn.should.not.throw();
+        });
+
         it('writes field values to req.form.values', function () {
             form.post(req, res, cb);
             req.form.values.should.have.keys([
@@ -448,7 +472,7 @@ describe('Form Controller', function () {
                 sinon.stub(form, 'Error');
                 validators.required.returns(false);
                 req.body = { field: 'value', email: 'foo', name: 'John' };
-                form.post(req, res, function (err) {
+                form.post(req, res, function () {
                     form.Error.should.have.been.calledWithExactly('field', sinon.match({ type: 'required' }), req, res);
                     form.Error.should.have.been.calledWithExactly('email', sinon.match({ type: 'required' }), req, res);
                     form.Error.should.have.been.calledWithExactly('name', sinon.match({ type: 'required' }), req, res);
@@ -632,7 +656,7 @@ describe('Form Controller', function () {
     });
 
     describe('successHandler', function () {
-
+        var form, req, res;
         beforeEach(function () {
             sinon.stub(Form.prototype, 'getNextStep');
             form = new Form({ template: 'index' });
@@ -753,7 +777,8 @@ describe('Form Controller', function () {
                             'is-thing-c': ''
                         }
                     }
-                }), res = {};
+                });
+                var res = {};
                 var cb = sinon.stub();
 
                 form._validate(req, res, cb);
@@ -809,10 +834,7 @@ describe('Form Controller', function () {
                             validate: [
                                 'required'
                             ],
-                            dependent: {
-                                field: 'is-thing',
-                                value: 'true'
-                            }
+                            dependent: 'is-thing'
                         },
                         'is-thing-notes': {
                             validate: [

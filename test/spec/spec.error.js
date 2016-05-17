@@ -1,7 +1,5 @@
 var ErrorClass = require('../../lib/error');
 
-var _ = require('underscore');
-
 describe('Error', function () {
 
     var req, res;
@@ -30,7 +28,7 @@ describe('Error', function () {
         var options = { type: 'type' };
         var err = new ErrorClass('field', options, req, res);
         err.message.should.equal('Error');
-        ErrorClass.prototype.getMessage.should.have.been.calledWithMatch('field', options, req, res);
+        ErrorClass.prototype.getMessage.should.have.been.calledWithExactly('field', options, req, res);
     });
 
     it('allows a custom message', function () {

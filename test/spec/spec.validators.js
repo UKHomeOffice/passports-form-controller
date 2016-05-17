@@ -1,7 +1,7 @@
 var Validators = require('../../').validators;
 var _ = require('underscore');
 
-function testName (input) {
+function testName(input) {
     if (_.isArray(input)) {
         return testName(input[0]) + ' with args: ' + input.slice(1);
     } else {
@@ -271,7 +271,8 @@ describe('Validators', function () {
                 '07812/123/456',
                 '(07812)123456',
                 'mymobile',
-                078121223456
+                '078121223456',
+                78121223456
             ];
             _.each(inputs, function (i) {
                 it(testName(i), function () {
@@ -385,7 +386,7 @@ describe('Validators', function () {
         describe('valid values', function () {
             var inputs = [
                 '01',
-                '12',
+                '12'
             ];
             _.each(inputs, function (i) {
                 it(testName(i), function () {
