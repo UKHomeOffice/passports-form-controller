@@ -546,107 +546,160 @@ describe('Form Controller', function () {
             form.getNextStep(req, res).should.be.equal('/base/next-page');
         });
 
-        describe('forking journeys', function () {
-
-            it('returns the fork target if the condition config is met', function () {
-                req.form.values['example-radio'] = 'conditionMet';
-                form.options.forks = [{
-                    target: '/target-page',
-                    condition: {
-                        field: 'example-radio',
-                        value: 'conditionMet'
-                    }
-                }];
-                form.getNextStep(req, {}).should.contain('/target-page');
+        describe('with forks, and _getForkTarget returns /fork', function () {
+            beforeEach(function () {
+                sinon.stub(Form.prototype, '_getForkTarget').returns('/fork');
+                form.options.forks = [];
             });
 
-            it('returns the original next target if the condition config is not met', function () {
-                req.form.values['example-radio'] = 'conditionNotMet';
-                form.options.forks = [{
-                    target: '/target-page',
-                    condition: {
-                        field: 'example-radio',
-                        value: 'conditionMet'
-                    }
-                }];
-                form.getNextStep(req, {}).should.equal('/next-page');
+            afterEach(function () {
+                Form.prototype._getForkTarget.restore();
             });
 
-            it('returns the fork target if the condition function is met', function () {
-                form.options.forks = [{
-                    target: '/target-page',
-                    condition: function () {
-                        return true;
-                    }
-                }];
-                form.getNextStep(req, {}).should.contain('/target-page');
+            it('calls _getForkTarget if forks are present', function () {
+                form.getNextStep(req, res);
+                Form.prototype._getForkTarget.should.have.been.calledOnce;
             });
 
-            it('returns the original next target if the condition function is not met', function () {
-                form.options.forks = [{
-                    target: '/target-page',
-                    condition: function () {
-                        return false;
-                    }
-                }];
-                form.getNextStep(req, {}).should.equal('/next-page');
+            it('prefixes result of _getForkTarget with req.baseUrl if present', function () {
+                req.baseUrl = '/base';
+                form.getNextStep(req, res).should.be.equal('/base/fork');
             });
 
-            describe('with more than one fork', function () {
+        });
 
-                describe('when the fields are the same', function () {
+    });
 
-                    beforeEach(function () {
-                        req.form = { values: {
-                            'example-radio': 'condition-met'
-                        }};
-                        form.options.forks = [{
-                            target: '/target-page',
-                            condition: {
-                                field: 'example-radio',
-                                value: 'condition-met'
-                            }
-                        }, {
-                            target: '/target-page-2',
-                            condition: {
-                                field: 'example-radio',
-                                value: 'condition-met'
-                            }
-                        }];
-                    });
+    describe('getForkTarget', function () {
+        var form,
+            req = {},
+            res = {};
 
-                    it('retuns the last forks\' target if each condition is met', function () {
-                        form.getNextStep(req, {}).should.contain('/target-page-2');
-                    });
+        beforeEach(function () {
+            sinon.stub(Form.prototype, '_getForkTarget');
+            form = new Form({ template: 'index', next: '/next-page' });
+        });
 
+        afterEach(function () {
+            Form.prototype._getForkTarget.restore();
+        });
+
+        it('calls _getForkTarget with req and res', function () {
+            form.getForkTarget(req, res);
+            Form.prototype._getForkTarget.should.have.been.calledOnce
+                .and.calledWithExactly(req, res);
+        });
+    });
+
+    describe('_getForkTarget', function () {
+        var form, req;
+
+        beforeEach(function () {
+            form = new Form({ template: 'index', next: '/next-page' });
+            req = request({
+                params: {},
+                body: { field: 'value' },
+                flash: sinon.stub()
+            });
+        });
+
+        it('returns the fork target if the condition config is met', function () {
+            req.form.values['example-radio'] = 'conditionMet';
+            form.options.forks = [{
+                target: '/target-page',
+                condition: {
+                    field: 'example-radio',
+                    value: 'conditionMet'
+                }
+            }];
+            form._getForkTarget(req, {}).should.contain('/target-page');
+        });
+
+        it('returns the original next target if the condition config is not met', function () {
+            req.form.values['example-radio'] = 'conditionNotMet';
+            form.options.forks = [{
+                target: '/target-page',
+                condition: {
+                    field: 'example-radio',
+                    value: 'conditionMet'
+                }
+            }];
+            form._getForkTarget(req, {}).should.equal('/next-page');
+        });
+
+        it('returns the fork target if the condition function is met', function () {
+            form.options.forks = [{
+                target: '/target-page',
+                condition: function () {
+                    return true;
+                }
+            }];
+            form._getForkTarget(req, {}).should.contain('/target-page');
+        });
+
+        it('returns the original next target if the condition function is not met', function () {
+            form.options.forks = [{
+                target: '/target-page',
+                condition: function () {
+                    return false;
+                }
+            }];
+            form._getForkTarget(req, {}).should.equal('/next-page');
+        });
+
+        describe('with more than one fork', function () {
+
+            describe('when the fields are the same', function () {
+
+                beforeEach(function () {
+                    req.form = { values: {
+                        'example-radio': 'condition-met'
+                    }};
+                    form.options.forks = [{
+                        target: '/target-page',
+                        condition: {
+                            field: 'example-radio',
+                            value: 'condition-met'
+                        }
+                    }, {
+                        target: '/target-page-2',
+                        condition: {
+                            field: 'example-radio',
+                            value: 'condition-met'
+                        }
+                    }];
                 });
 
-                describe('when the fields are different', function () {
+                it('retuns the last forks\' target if each condition is met', function () {
+                    form._getForkTarget(req, {}).should.contain('/target-page-2');
+                });
 
-                    beforeEach(function () {
-                        form.options.forks = [{
-                            target: '/target-page',
-                            condition: {
-                                field: 'example-radio',
-                                value: 'conditionMet'
-                            }
-                        }, {
-                            target: '/target-page-2',
-                            condition: {
-                                field: 'example-email',
-                                value: 'conditionMet'
-                            }
-                        }];
-                    });
+            });
 
-                    it('returns the last forks\' target if each condition is met', function () {
-                        req.form = { values: {
-                            'example-radio': 'conditionMet',
-                            'example-email': 'conditionMet'
-                        }};
-                        form.getNextStep(req, {}).should.contain('/target-page-2');
-                    });
+            describe('when the fields are different', function () {
 
+                beforeEach(function () {
+                    form.options.forks = [{
+                        target: '/target-page',
+                        condition: {
+                            field: 'example-radio',
+                            value: 'conditionMet'
+                        }
+                    }, {
+                        target: '/target-page-2',
+                        condition: {
+                            field: 'example-email',
+                            value: 'conditionMet'
+                        }
+                    }];
+                });
+
+                it('returns the last forks\' target if each condition is met', function () {
+                    req.form = { values: {
+                        'example-radio': 'conditionMet',
+                        'example-email': 'conditionMet'
+                    }};
+                    form._getForkTarget(req, {}).should.contain('/target-page-2');
                 });
 
             });
