@@ -21,9 +21,16 @@ describe('Form Controller', function () {
         form.should.be.an.instanceOf(EventEmitter);
     });
 
-    it('throws if both template is undefined', function () {
+    it('throws if template is undefined', function () {
         var fn = function () {
             return new Form({});
+        };
+        fn.should.throw();
+    });
+
+    it('throws if options are undefined', function () {
+        var fn = function () {
+            return new Form();
         };
         fn.should.throw();
     });
@@ -303,7 +310,7 @@ describe('Form Controller', function () {
             cb.should.have.been.calledWithExactly(new Error('Undefined validator:unknown'));
         });
 
-        it('ignores an unkown formatter', function () {
+        it('ignores an unknown formatter', function () {
             var form = new Form({
                 template: 'index',
                 fields: {
@@ -332,7 +339,7 @@ describe('Form Controller', function () {
             form.setErrors.should.have.been.calledWithExactly(null, req, res);
         });
 
-        it('call callback with error if _process fails', function () {
+        it('calls callback with error if _process fails', function () {
             var cb = sinon.stub();
             sinon.stub(form, '_process').yields('error');
             form.post(req, res, cb);
@@ -381,6 +388,17 @@ describe('Form Controller', function () {
             form.post(req, res, cb);
             validators.equal.should.have.been.calledOnce;
             validators.equal.should.have.been.calledWith('number', 'one', 'two', 'three');
+        });
+
+        it('does not keep adding equality validators if one already exists', function () {
+            req.body = {
+                options: 'number'
+            };
+            form.post(req, res, cb);
+            validators.equal.should.have.been.calledOnce;
+            form.post(req, res, cb);
+            validators.equal.should.have.been.calledTwice;
+            form.options.fields['options'].validate.length.should.equal(1);
         });
 
         it('calls out to form.validate', function () {
