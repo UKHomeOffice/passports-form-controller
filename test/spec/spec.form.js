@@ -266,6 +266,7 @@ describe('Form Controller', function () {
                     field: { formatter: 'uppercase', validate: 'required' },
                     email: { validate: ['required', 'email'] },
                     name: { validate: ['required', { type: 'minlength', arguments: [10] }, { type: 'maxlength', arguments: 20 }] },
+                    place: { validate: 'required' },
                     bool: { formatter: 'boolean' },
                     options: { options: [ 'one', { value: 'two' }, 'three' ] }
                 }
@@ -329,6 +330,7 @@ describe('Form Controller', function () {
                 'field',
                 'email',
                 'name',
+                'place',
                 'bool',
                 'options'
             ]);
@@ -351,6 +353,13 @@ describe('Form Controller', function () {
             form.post(req, res, cb);
             req.form.values.field.should.equal('VALUE');
             req.form.values.bool.should.equal(true);
+        });
+
+        it('creates a validate array when validate is a string or field options exist', function () {
+            form.post(req, res, cb);
+            expect(form.options.fields.bool.validate).to.be.undefined;
+            form.options.fields.place.validate.should.eql(['required']);
+            form.options.fields.options.validate.length.should.equal(1);
         });
 
         it('validates the fields', function () {
@@ -467,7 +476,7 @@ describe('Form Controller', function () {
                 req.body = { field: 'value', email: 'foo', name: 'John' };
                 form.post(req, res, cb);
                 cb.should.have.been.calledOnce;
-                Object.keys(cb.args[0][0]).should.eql(['field', 'email', 'name']);
+                Object.keys(cb.args[0][0]).should.eql(['field', 'email', 'name', 'place']);
                 _.each(cb.args[0][0], function (err, key) {
                     err.type.should.equal('required');
                     err.key.should.equal(key);
