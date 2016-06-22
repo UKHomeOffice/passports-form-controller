@@ -808,6 +808,20 @@ describe('Form Controller', function () {
             res.redirect.should.have.been.calledWith('/foo/index');
         });
 
+        it('redirects to another site if defined', function () {
+            err.redirect = 'http://www.gov.uk/';
+            req.baseUrl = '/foo';
+            form.errorHandler({ field: err }, req, res);
+            res.redirect.should.have.been.calledWith('http://www.gov.uk/');
+        });
+
+        it('redirects to another secure site if defined', function () {
+            err.redirect = 'https://www.gov.uk/';
+            req.baseUrl = '/foo';
+            form.errorHandler({ field: err }, req, res);
+            res.redirect.should.have.been.calledWith('https://www.gov.uk/');
+        });
+
         it('calls callback if error is not a validation error', function () {
             var cb = sinon.stub();
             var err = new Error('message');
