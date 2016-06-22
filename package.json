@@ -9,7 +9,8 @@
     "cover": "istanbul cover _mocha -- -R dot --recursive test/spec/ --require test/helper --timeout 300000",
     "check-coverage": "istanbul check-coverage --statement 98.31 --branch 94.89 --function 96.30 --line 98.31",
     "lint": "eslint .",
-    "snyk": "snyk test --dev"
+    "snyk": "snyk test",
+    "snyk:dev": "snyk test --dev"
   },
   "repository": {
     "type": "git",
