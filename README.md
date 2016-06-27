@@ -58,6 +58,21 @@ The library [supports a number of validators](https://github.com/UKHomeOffice/pa
 
 By default the application of a validator is optional on empty strings. If you need to ensure a field is validated as being 9 characters long and exists then you need to use both an `exactlength` and a `required` validator.
 
+#### Custom Validators
+
+Custom validator functions can be passed in field config. These must be named functions and the name is used as the error.type for looking up validation error messages.
+
+fields.js
+```js
+{
+    'field-1': {
+        validate: ['required', function isTrue(val) {
+            return val === true;
+        }]
+    }
+}
+```
+
 ### steps config
 
 #### Handles journey forking

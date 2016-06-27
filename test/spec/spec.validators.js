@@ -1,4 +1,5 @@
 var Validators = require('../../').validators;
+var validationHelper = require('../../lib/validation');
 var _ = require('underscore');
 
 function testName(input) {
@@ -582,6 +583,59 @@ describe('Validators', function () {
             });
         });
 
+    });
+
+    describe('custom validators', function () {
+        var fields, validator;
+
+        beforeEach(function () {
+            fields = {
+                'field-1': {
+                    validate: [function doSomething() {
+                        return true;
+                    }]
+                },
+                'field-2': {
+                    validate: [function () {
+                        return true;
+                    }]
+                },
+                'field-3': {
+                    validate: [function fail() {
+                        return false;
+                    }]
+                },
+                'field-4': {
+                    validate: [function checkVal(val) {
+                        return val === true;
+                    }]
+                }
+            };
+            validator = validationHelper(fields);
+        });
+
+        it('accepts custom validators', function () {
+            expect(validator('field-1', null)).to.be.undefined;
+        });
+
+        it('throws an error if an anonymous function is passed', function () {
+            try {
+                validator('field-2');
+            } catch (err) {
+                err.should.be.an('error')
+                    .and.have.property('message')
+                    .and.be.equal('Custom validator needs to be a named function');
+            }
+        });
+
+        it('uses the name of the function as the error type', function () {
+            validator('field-3').should.have.property('type')
+                .and.be.equal('fail');
+        });
+
+        it('validates using the passed values', function () {
+            expect(validator('field-4', true)).to.be.undefined;
+        });
     });
 
 });
