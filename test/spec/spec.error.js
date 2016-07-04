@@ -35,5 +35,10 @@ describe('Error', function () {
         var err = new ErrorClass('field', { message: 'My message' });
         err.message.should.equal('My message');
     });
+    
+    it('allows a custom title', function() {
+        var err = new ErrorClass('field', { title: 'My error title' });
+        err.title.should.equal('My error title');
+    });
 
 });
