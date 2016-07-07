@@ -122,21 +122,3 @@ In this example, if the last condition resolves to true - even if the others als
     }]
 }
 ```
-
-### The FormError class
-
-FormError can be used as a façade to normalise different types of error one may receive / trigger, and to be subsequently returned from a controller.
-Its constructor takes a series of options. `title` and `message` have both getters and public methods to define default values.
-
-
-```js
-
-let error = new ErrorClass(this.missingDoB, {
-    key: this.missingDob,
-    type: 'required',
-    redirect: '/missingData',
-    title: 'Something went wrong',
-    message: 'Please supply a valid date of birth'});
-```
-
-
