@@ -21,11 +21,11 @@ describe('Form Controller', function () {
         form.should.be.an.instanceOf(EventEmitter);
     });
 
-    it('throws if template is undefined', function () {
+    it('doesn\'t throw if template is undefined', function () {
         var fn = function () {
             return new Form({});
         };
-        fn.should.throw();
+        fn.should.not.throw();
     });
 
     it('throws if options are undefined', function () {
@@ -545,6 +545,13 @@ describe('Form Controller', function () {
         it('renders the provided template', function () {
             form.render(req, res, cb);
             res.render.should.have.been.calledWith('index');
+        });
+
+        it('throws an error if no template provided', function () {
+            var err = new Error('A template must be provided');
+            form.options.template = undefined;
+            form.render(req, res, cb);
+            cb.should.have.been.calledOnce.and.calledWithExactly(err);
         });
 
     });
