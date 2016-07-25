@@ -56,7 +56,46 @@ These methods are synchronous and take only the request and response obejct as a
 
 The library [supports a number of validators](https://github.com/UKHomeOffice/passports-form-controller/blob/master/lib/validation/validators.js).
 
-By default the application of a validator is optional on empty strings. If you need to ensure a field is validated as being 9 characters long and exists then you need to use both an `exactlength` and a `required` validator.
+By default the application of a validator is optional on empty strings. If you need to ensure a field is validated as being 9 characters long and exists then you need to use both an `exactlength` and a `required` validator (see the example in the next section).
+
+#### Common Validators
+
+Many of the common validators require more than simply providing the validator name. The basic configuration is given in the following example, using the `exactlength` validator.
+
+##### Exact length field configuration
+
+The field configuration below for an `id-number`, ensures a value: is provided, is numberic, and is exactly **9** digits.
+
+fields.js
+```js
+'id-number': {
+    validate: [
+        'required',
+        'numeric',
+        {
+            type: 'exactlength',
+            arguments: [ 9 ]
+        }
+    ]
+}
+```
+
+Note: The object notation for the `exactlength` validator. This allows the definition of the extra coniguration property `arguments`. In the example the exact length is set to `9`. Some of the more complex validators - like `before` and `after` - may require several parameters, e.g. validating a date was before 1 year, 2 months, 3 days, 4 hours, 5 minutes ago, would look like: `arguments: [1, 'years', 2, 'months', 3, 'days', 4, 'hours', 5, 'minutes']`
+
+##### Exact length error token configuration
+
+The token configuration below for the same `id-number` (as in the above field example), shows how to define an appropriate set of error messages.
+
+default.json
+```js
+"validation": {
+    "id-number": {
+        "required": "Please enter an ID number",
+        "numeric": "Please enter a proper number",
+        "exactlength": "The ID number should be 9 digits"
+    }
+}
+```
 
 #### Custom Validators
 
