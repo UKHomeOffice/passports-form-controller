@@ -324,6 +324,18 @@ describe('Form Controller', function () {
             fn.should.not.throw();
         });
 
+        it('applies formtter to array of values', function () {
+            var form = new Form({
+                template: 'index',
+                fields: {
+                    field: { formatter: 'uppercase' }
+                }
+            });
+            req.body.field = ['value', 'another value'];
+            form.post(req, res, cb);
+            req.form.values.field.should.be.eql(['VALUE', 'ANOTHER VALUE']);
+        });
+
         it('writes field values to req.form.values', function () {
             form.post(req, res, cb);
             req.form.values.should.have.keys([
