@@ -324,7 +324,7 @@ describe('Form Controller', function () {
             fn.should.not.throw();
         });
 
-        it('applies formtter to array of values', function () {
+        it('applies formatter to array of values', function () {
             var form = new Form({
                 template: 'index',
                 fields: {
