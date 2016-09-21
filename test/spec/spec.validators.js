@@ -193,7 +193,8 @@ describe('Validators', function () {
                 [true, 'true'],
                 [0, '0'],
                 ['a', 'b', 'c', 'd'],
-                ['a']
+                ['a'],
+                [['a', 'b', 'c'], 'a', 'b']
             ];
             _.each(inputs, function (i) {
                 it(testName(i), function () {
@@ -208,7 +209,8 @@ describe('Validators', function () {
                 ['John Smith', 'John Smith'],
                 [10, 10],
                 [true, true],
-                ['a', 'b', 'c', 'a']
+                ['a', 'b', 'c', 'a'],
+                [['a', 'b'], 'a', 'b']
             ];
             _.each(inputs, function (i) {
                 it(testName(i), function () {
