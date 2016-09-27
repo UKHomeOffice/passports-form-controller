@@ -1091,6 +1091,54 @@ describe('Form Controller', function () {
                 cb.should.have.been.calledWith();
             });
 
+            describe('If a field represents an array of values', function () {
+                beforeEach(function () {
+                    form = new Form({
+                        template: 'index',
+                        fields: {
+                            'field': {},
+                            'field-2': {
+                                validate: [
+                                    'required'
+                                ],
+                                dependent: {
+                                    field: 'field',
+                                    value: 2
+                                }
+                            }
+                        }
+                    });
+                });
+
+                it('should be validated if the dependency exists and is an array containing the value', function () {
+                    req = request({
+                        form: {
+                            values: {
+                                'field': [1, 2, 3],
+                                'field-2': ''
+                            }
+                        }
+                    });
+                    form._validate(req, res, cb);
+                    cb.should.have.been.calledWith({
+                        'field-2': new form.Error('field-2', { type: 'required' })
+                    });
+                });
+
+                it('shouldn\'t be validated if the dependency exists and is an array which doesn\'t contain the value', function () {
+                    req = request({
+                        form: {
+                            values: {
+                                'field': [1, 3, 4],
+                                'field-2': ''
+                            }
+                        }
+                    });
+                    form._validate(req, res, cb);
+                    cb.should.have.been.calledWith();
+                });
+            });
+
         });
 
     });
