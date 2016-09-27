@@ -1091,7 +1091,7 @@ describe('Form Controller', function () {
                 cb.should.have.been.calledWith();
             });
 
-            describe('If a field represents an array of values', function () {
+            describe('Fields that are an array of values', function () {
                 beforeEach(function () {
                     form = new Form({
                         template: 'index',
