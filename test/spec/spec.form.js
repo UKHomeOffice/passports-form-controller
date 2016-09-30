@@ -324,6 +324,18 @@ describe('Form Controller', function () {
             fn.should.not.throw();
         });
 
+        it('applies formatter to array of values', function () {
+            var form = new Form({
+                template: 'index',
+                fields: {
+                    field: { formatter: 'uppercase' }
+                }
+            });
+            req.body.field = ['value', 'another value'];
+            form.post(req, res, cb);
+            req.form.values.field.should.be.eql(['VALUE', 'ANOTHER VALUE']);
+        });
+
         it('writes field values to req.form.values', function () {
             form.post(req, res, cb);
             req.form.values.should.have.keys([
@@ -1077,6 +1089,54 @@ describe('Form Controller', function () {
 
                 form._validate(req, res, cb);
                 cb.should.have.been.calledWith();
+            });
+
+            describe('fields that are an array of values', function () {
+                beforeEach(function () {
+                    form = new Form({
+                        template: 'index',
+                        fields: {
+                            'field': {},
+                            'field-2': {
+                                validate: [
+                                    'required'
+                                ],
+                                dependent: {
+                                    field: 'field',
+                                    value: 2
+                                }
+                            }
+                        }
+                    });
+                });
+
+                it('should be validated if the dependency exists and is an array containing the value', function () {
+                    req = request({
+                        form: {
+                            values: {
+                                'field': [1, 2, 3],
+                                'field-2': ''
+                            }
+                        }
+                    });
+                    form._validate(req, res, cb);
+                    cb.should.have.been.calledWith({
+                        'field-2': new form.Error('field-2', { type: 'required' })
+                    });
+                });
+
+                it('shouldn\'t be validated if the dependency exists and is an array which doesn\'t contain the value', function () {
+                    req = request({
+                        form: {
+                            values: {
+                                'field': [1, 3, 4],
+                                'field-2': ''
+                            }
+                        }
+                    });
+                    form._validate(req, res, cb);
+                    cb.should.have.been.calledWith();
+                });
             });
 
         });
