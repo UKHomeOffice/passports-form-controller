@@ -60,16 +60,17 @@ By default the application of a validator is optional on empty strings. If you n
 
 #### Custom Validators
 
-Custom validator functions can be passed in field config. These must be named functions and the name is used as the error.type for looking up validation error messages.
+Custom validator functions can be passed in field config. These must be named functions and the name is used as the error.type for looking up validation error messages. The first argument passed is the value of the field, the second argument is a map of all fields and values present on the page.
 
 fields.js
 ```js
 {
     'field-1': {
-        validate: ['required', function isTrue(val) {
-            return val === true;
+        validate: ['required', function isTrue(val, values) {
+            return val !== values['field-2'];
         }]
-    }
+    },
+    'field-2': {}
 }
 ```
 
@@ -153,5 +154,3 @@ let error = new ErrorClass(this.missingDoB, {
     title: 'Something went wrong',
     message: 'Please supply a valid date of birth'});
 ```
-
-

@@ -647,6 +647,11 @@ describe('Validators', function () {
                     validate: [function checkVal(val) {
                         return val === true;
                     }]
+                },
+                'field-5': {
+                    validate: [function checkAgainstOtherValues(value, values) {
+                        return value === values['another-field'];
+                    }]
                 }
             };
             validator = validationHelper(fields);
@@ -673,6 +678,13 @@ describe('Validators', function () {
 
         it('validates using the passed values', function () {
             expect(validator('field-4', true)).to.be.undefined;
+        });
+
+        it('passes the form values to the validator', function () {
+            var values = {
+                'another-field': true
+            };
+            expect(validator('field-5', true, values)).to.be.undefined;
         });
     });
 
