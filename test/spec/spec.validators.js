@@ -53,6 +53,51 @@ describe('Validators', function () {
 
     });
 
+    describe('url', function () {
+
+        describe('invalid values', function () {
+            var inputs = [
+                true,
+                false,
+                undefined,
+                null,
+                12345,
+                'something',
+                'www.something.com123',
+                'something.com.'
+            ];
+            _.each(inputs, function (i) {
+                it(testName(i), function () {
+                    Validators.url(i).should.not.be.ok;
+                });
+            });
+        });
+
+        describe('valid values', function () {
+            var inputs = [
+                '',
+                'something.com',
+                'www.something.com',
+                'http://www.something.com',
+                'http://www.some-thing.com',
+                'http://something.co.uk/',
+                'http://something.co.uk',
+                'test.co.uk/somepage.html',
+                'www.example.com/contact?name=someName',
+                'http://example.com/#index',
+                'www.example.com/contact?name=someName#start',
+                '://something.com/',
+                'http://u@p:something.com/'
+            ];
+            _.each(inputs, function (i) {
+                it(testName(i), function () {
+                    Validators.url(i).should.be.ok;
+                });
+            });
+        });
+
+    });
+
     describe('email', function () {
 
         describe('invalid values', function () {
