@@ -53,6 +53,42 @@ describe('Validators', function () {
 
     });
 
+    describe('url', function () {
+
+        describe('invalid values', function () {
+            var inputs = [
+                true,
+                false,
+                undefined,
+                null,
+                12345,
+                'something',
+                'www.something.com123'
+            ];
+            _.each(inputs, function (i) {
+                it(testName(i), function () {
+                    Validators.url(i).should.not.be.ok;
+                });
+            });
+        });
+
+        describe('valid values', function () {
+            var inputs = [
+                '',
+                'www.something.com',
+                'http://www.something.com',
+                'test.co.uk/somepage.html',
+                'www.example.com/contact.php?name=someName'
+            ];
+            _.each(inputs, function (i) {
+                it(testName(i), function () {
+                    Validators.url(i).should.be.ok;
+                });
+            });
+        });
+
+    });
+
     describe('email', function () {
 
         describe('invalid values', function () {
