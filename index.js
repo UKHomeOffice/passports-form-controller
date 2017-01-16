@@ -1,3 +1,5 @@
+'use strict';
+
 var Form = require('./lib/form');
 
 Form.validators = require('./lib/validation/validators');
