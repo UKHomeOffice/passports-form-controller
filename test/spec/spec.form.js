@@ -291,6 +291,19 @@ describe('Form Controller', function () {
             form.emit.should.have.been.calledWithExactly('complete', req, res);
         });
 
+        it('does not emit "complete" event if form has dynamic fields added at configure step', function () {
+            form.options.fields = {};
+            form.configure = function (req, res, next) {
+                req.form.options.fields.name = {
+                    mixin: 'input-text',
+                    validate: 'required'
+                };
+                next();
+            };
+            form.get(req, res, cb);
+            form.emit.withArgs('complete').should.not.have.been.called;
+        });
+
         it('does not emit "complete" event if form has fields', function () {
             form = new Form({ template: 'index', fields: { key: {} } });
             form.get(req, res, cb);
