@@ -40,6 +40,7 @@ module.exports = MyForm;
 
 The Form class allows for a number of insertion points for extended functionality:
 
+* `configure`   Allows for dynamic overwriting of particular points of form configuration based on user session
 * `process`     Allows for custom formatting and processing of input prior to validation
 * `validate`    Allows for custom input validation
 * `getValues`   To define what values the fields are populated with on GET
@@ -135,6 +136,19 @@ In this example, if the last condition resolves to true - even if the others als
             return typeof req.form.values['email'] === 'undefined';
         }
     }]
+}
+```
+
+### Dynamic field options
+
+If the options for a particular field are dependent on aspects of the user session, then these can be extended on a per-session basis using the `configure` method.
+
+For example, for a dynamic address selection component:
+
+```js
+MyForm.prototype.configure = function configure(req, res, next) {
+    req.form.options.fields['address-select'].options = req.sessionModel.get('addresses');
+    next();
 }
 ```
 
