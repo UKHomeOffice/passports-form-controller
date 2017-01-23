@@ -141,6 +141,68 @@ describe('Form Controller', function () {
 
     });
 
+    describe('configure', function () {
+
+        var form, req, res, cb;
+
+        beforeEach(function () {
+            form = new Form({
+                template: 'index',
+                next: '/next',
+                fields: {
+                    field: 'name'
+                }
+            });
+            req = request({
+                path: '/index',
+                baseUrl: '/base'
+            });
+            res = {
+                render: sinon.stub(),
+                locals: {}
+            };
+            cb = sinon.stub();
+            sinon.spy(form, '_configure');
+            sinon.stub(form, 'configure').yields();
+        });
+
+        it('is called as part of `get` pipeline', function () {
+            form.get(req, res, cb);
+            form._configure.should.have.been.calledOnce.and.calledWith(req, res);
+        });
+
+        it('is called as part of `post` pipeline', function () {
+            form.post(req, res, cb);
+            form._configure.should.have.been.calledOnce.and.calledWith(req, res);
+        });
+
+        it('calls through to form.configure', function () {
+            form._configure(req, res, cb);
+            form.configure.should.have.been.calledOnce.and.calledWith(req, res, cb);
+        });
+
+        it('writes form options to `req.form.options`', function () {
+            form._configure(req, res, cb);
+            req.form.options.should.deep.equal(form.options);
+        });
+
+        it('clones form options to `req.form.options` to avoid config mutation', function () {
+            form._configure(req, res, cb);
+            req.form.options.should.not.equal(form.options);
+        });
+
+        it('performs a deep clone of form options', function () {
+            form.configure = sinon.spy(function (req, res, next) {
+                req.form.options.fields.field = 'mutated';
+                next();
+            });
+            form._configure(req, res, cb);
+            req.form.options.fields.field.should.equal('mutated');
+            form.options.fields.field.should.equal('name');
+        });
+
+    });
+
     describe('get', function () {
 
         var form, req, res, cb;
@@ -369,9 +431,9 @@ describe('Form Controller', function () {
 
         it('creates a validate array when validate is a string or field options exist', function () {
             form.post(req, res, cb);
-            expect(form.options.fields.bool.validate).to.be.undefined;
-            form.options.fields.place.validate.should.eql(['required']);
-            form.options.fields.options.validate.length.should.equal(1);
+            expect(req.form.options.fields.bool.validate).to.be.undefined;
+            req.form.options.fields.place.validate.should.eql(['required']);
+            req.form.options.fields.options.validate.length.should.equal(1);
         });
 
         it('validates the fields', function () {
@@ -419,7 +481,7 @@ describe('Form Controller', function () {
             validators.equal.should.have.been.calledOnce;
             form.post(req, res, cb);
             validators.equal.should.have.been.calledTwice;
-            form.options.fields['options'].validate.length.should.equal(1);
+            req.form.options.fields['options'].validate.length.should.equal(1);
         });
 
         it('calls out to form.validate', function () {
@@ -540,7 +602,7 @@ describe('Form Controller', function () {
 
         var form, req, res, cb;
 
-        beforeEach(function () {
+        beforeEach(function (done) {
             form = new Form({
                 template: 'index',
                 next: '/next',
@@ -548,10 +610,12 @@ describe('Form Controller', function () {
                     field: 'name'
                 }
             });
+            req = {};
             res = {
                 render: sinon.stub()
             };
             cb = sinon.stub();
+            form._configure(req, res, done);
         });
 
         it('renders the provided template', function () {
@@ -561,7 +625,7 @@ describe('Form Controller', function () {
 
         it('throws an error if no template provided', function () {
             var err = new Error('A template must be provided');
-            form.options.template = undefined;
+            req.form.options.template = undefined;
             form.render(req, res, cb);
             cb.should.have.been.calledOnce.and.calledWithExactly(err);
         });
@@ -571,7 +635,7 @@ describe('Form Controller', function () {
     describe('getNextStep', function () {
         var form, req, res;
 
-        beforeEach(function () {
+        beforeEach(function (done) {
             form = new Form({ template: 'index', next: '/next-page' });
             req = request({
                 params: {},
@@ -581,6 +645,7 @@ describe('Form Controller', function () {
             res = {
                 redirect: sinon.stub()
             };
+            form._configure(req, res, done);
         });
 
         it('redirects to `next` page', function () {
@@ -595,7 +660,7 @@ describe('Form Controller', function () {
         describe('with forks, and _getForkTarget returns /fork', function () {
             beforeEach(function () {
                 sinon.stub(Form.prototype, '_getForkTarget').returns('/fork');
-                form.options.forks = [];
+                req.form.options.forks = [];
             });
 
             afterEach(function () {
@@ -621,9 +686,10 @@ describe('Form Controller', function () {
             req = {},
             res = {};
 
-        beforeEach(function () {
+        beforeEach(function (done) {
             sinon.stub(Form.prototype, '_getForkTarget');
             form = new Form({ template: 'index', next: '/next-page' });
+            form._configure(req, res, done);
         });
 
         afterEach(function () {
@@ -638,20 +704,22 @@ describe('Form Controller', function () {
     });
 
     describe('_getForkTarget', function () {
-        var form, req;
+        var form, req, res;
 
-        beforeEach(function () {
+        beforeEach(function (done) {
             form = new Form({ template: 'index', next: '/next-page' });
             req = request({
                 params: {},
                 body: { field: 'value' },
                 flash: sinon.stub()
             });
+            res = {};
+            form._configure(req, res, done);
         });
 
         it('returns the fork target if the condition config is met', function () {
             req.form.values['example-radio'] = 'conditionMet';
-            form.options.forks = [{
+            req.form.options.forks = [{
                 target: '/target-page',
                 condition: {
                     field: 'example-radio',
@@ -663,7 +731,7 @@ describe('Form Controller', function () {
 
         it('returns the original next target if the condition config is not met', function () {
             req.form.values['example-radio'] = 'conditionNotMet';
-            form.options.forks = [{
+            req.form.options.forks = [{
                 target: '/target-page',
                 condition: {
                     field: 'example-radio',
@@ -674,7 +742,7 @@ describe('Form Controller', function () {
         });
 
         it('returns the fork target if the condition function is met', function () {
-            form.options.forks = [{
+            req.form.options.forks = [{
                 target: '/target-page',
                 condition: function () {
                     return true;
@@ -684,7 +752,7 @@ describe('Form Controller', function () {
         });
 
         it('returns the original next target if the condition function is not met', function () {
-            form.options.forks = [{
+            req.form.options.forks = [{
                 target: '/target-page',
                 condition: function () {
                     return false;
@@ -698,10 +766,10 @@ describe('Form Controller', function () {
             describe('when the fields are the same', function () {
 
                 beforeEach(function () {
-                    req.form = { values: {
+                    req.form.values = {
                         'example-radio': 'condition-met'
-                    }};
-                    form.options.forks = [{
+                    };
+                    req.form.options.forks = [{
                         target: '/target-page',
                         condition: {
                             field: 'example-radio',
@@ -725,7 +793,7 @@ describe('Form Controller', function () {
             describe('when the fields are different', function () {
 
                 beforeEach(function () {
-                    form.options.forks = [{
+                    req.form.options.forks = [{
                         target: '/target-page',
                         condition: {
                             field: 'example-radio',
@@ -741,10 +809,10 @@ describe('Form Controller', function () {
                 });
 
                 it('returns the last forks\' target if each condition is met', function () {
-                    req.form = { values: {
+                    req.form.values = {
                         'example-radio': 'conditionMet',
                         'example-email': 'conditionMet'
-                    }};
+                    };
                     form._getForkTarget(req, {}).should.contain('/target-page-2');
                 });
 
@@ -855,8 +923,8 @@ describe('Form Controller', function () {
 
         describe('sharing of errors defined with validator groups', function () {
 
-            var form;
-            beforeEach(function () {
+            var form, req, res, cb;
+            beforeEach(function (done) {
                 form = new Form({
                     template: 'index',
                     next: 'error',
@@ -878,10 +946,7 @@ describe('Form Controller', function () {
                         }
                     }
                 });
-            });
-
-            it('should *only* place errors against a single error key if the validator that created them belongs to a group', function () {
-                var req = request({
+                req = request({
                     flash: sinon.stub(),
                     form: {
                         values: {
@@ -891,9 +956,13 @@ describe('Form Controller', function () {
                         }
                     }
                 });
-                var res = {};
-                var cb = sinon.stub();
+                res = {};
+                cb = sinon.stub();
 
+                form._configure(req, res, done);
+            });
+
+            it('should *only* place errors against a single error key if the validator that created them belongs to a group', function () {
                 form._validate(req, res, cb);
                 cb.should.be.calledWith({
                     'is-thing': new form.Error('is-thing', { 'type': 'required' }),
@@ -971,7 +1040,7 @@ describe('Form Controller', function () {
                         }
                     }
                 });
-
+                form._configure(req, res, function () {});
                 form._validate(req, res, cb);
                 cb.should.not.be.calledWithMatch({});
 
@@ -1014,7 +1083,7 @@ describe('Form Controller', function () {
                         }
                     }
                 });
-
+                form._configure(req, res, function () {});
                 form._validate(req, res, cb);
                 cb.should.have.been.calledWith({
                     'is-thing-b': new form.Error('is-thing-b', { type: 'required' })
@@ -1050,7 +1119,7 @@ describe('Form Controller', function () {
                         }
                     }
                 });
-
+                form._configure(req, res, function () {});
                 form._validate(req, res, cb);
                 cb.should.have.been.calledWith({
                     'is-thing-b': new form.Error('is-thing-b', { type: 'required' })
@@ -1086,7 +1155,7 @@ describe('Form Controller', function () {
                         }
                     }
                 });
-
+                form._configure(req, res, function () {});
                 form._validate(req, res, cb);
                 cb.should.have.been.calledWith();
             });
