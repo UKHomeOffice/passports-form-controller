@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npm run lint && npm run unit && npm run cover && npm run check-coverage && npm run snyk",
+    "test": "npm run lint && npm run unit && npm run cover && npm run check-coverage",
     "unit": "mocha --recursive test/spec/ --require test/helper --timeout 300000",
     "cover": "istanbul cover _mocha -- -R dot --recursive test/spec/ --require test/helper --timeout 300000",
     "check-coverage": "istanbul check-coverage --statement 98.31 --branch 94.89 --function 96.30 --line 98.31",
@@ -42,6 +42,6 @@
     "reqres": "^1.1.1",
     "sinon": "^1.12.2",
     "sinon-chai": "^2.6.0",
-    "snyk": "1.23.4"
+    "snyk": "^1.24.5"
   }
 }
