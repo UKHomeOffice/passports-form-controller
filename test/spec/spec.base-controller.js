@@ -1,4 +1,7 @@
-var Form = require('../../');
+var Form = require('../../lib/base-controller');
+var validators = require('../../lib/validation/validators');
+var formatters = require('../../lib/formatting/formatters');
+var FormError = require('../../lib/base-error');
 
 var _ = require('underscore'),
     EventEmitter = require('events').EventEmitter;
@@ -330,7 +333,6 @@ describe('Form Controller', function () {
     describe('post', function () {
 
         var form, req, res, cb;
-        var validators = Form.validators;
 
         beforeEach(function () {
             cb = sinon.stub();
@@ -868,7 +870,7 @@ describe('Form Controller', function () {
         var form, req, res, err;
 
         beforeEach(function () {
-            err = new Form.Error('field');
+            err = new FormError('field');
             form = new Form({ template: 'index', next: '/success' });
             req = request({
                 path: '/index',
@@ -889,8 +891,8 @@ describe('Form Controller', function () {
 
         it('redirects to req.path if not all errors have a redirect value', function () {
             err = {
-                'field-a': new Form.Error('field-a'),
-                'field-b': new Form.Error('field-b', { redirect: '/exitpage' })
+                'field-a': new form.Error('field-a'),
+                'field-b': new form.Error('field-b', { redirect: '/exitpage' })
             };
             form.errorHandler(err, req, res);
             res.redirect.should.have.been.calledWith('/index');
@@ -978,8 +980,8 @@ describe('Form Controller', function () {
             it('should *only* place errors against a single error key if the validator that created them belongs to a group', function () {
                 form._validate(req, res, cb);
                 cb.should.be.calledWith({
-                    'is-thing': new form.Error('is-thing', { 'type': 'required' }),
-                    'is-thing-c': new form.Error('is-thing-c', { 'type': 'required' })
+                    'is-thing': new FormError('is-thing', { 'type': 'required' }),
+                    'is-thing-c': new FormError('is-thing-c', { 'type': 'required' })
                 });
             });
 
@@ -987,11 +989,10 @@ describe('Form Controller', function () {
 
         describe('dependent fields', function () {
 
-            var form, oldFormatters, req, res, cb;
+            var form, req, res, cb, customFormatters;
 
             beforeEach(function () {
-                oldFormatters = _.clone(Form.formatters);
-                Form.formatters = _.extend(Form.formatters, {
+                customFormatters = Object.assign({}, formatters, {
                     'boolean-force': function booleanforce(value) {
                         var state;
                         if (value === true || value === 'true') {
@@ -1009,14 +1010,11 @@ describe('Form Controller', function () {
                 cb = sinon.stub();
             });
 
-            afterEach(function () {
-                Form.formatters = oldFormatters;
-            });
-
             it('should clean the values with an appropriately formatted empty value if a dependency is not met', function () {
                 form = new Form({
                     template: 'index',
                     next: 'error',
+                    formatters: customFormatters,
                     fields: {
                         'is-thing': {
                             formatter: 'boolean-force',
@@ -1070,6 +1068,7 @@ describe('Form Controller', function () {
             it('should be validated if the dependency exists in the step\'s fields and the value matches', function () {
                 form = new Form({
                     template: 'index',
+                    formatters: customFormatters,
                     fields: {
                         'is-thing': {
                             validate: [
@@ -1106,6 +1105,7 @@ describe('Form Controller', function () {
             it('should be validated if the dependency doesn\'t exist in the step\'s fields', function () {
                 form = new Form({
                     template: 'index',
+                    formatters: customFormatters,
                     fields: {
                         'is-thing': {
                             validate: [
@@ -1142,6 +1142,7 @@ describe('Form Controller', function () {
             it('shouldn\'t be validated if the dependency exists but the value doesn\'t match', function () {
                 form = new Form({
                     template: 'index',
+                    formaters: customFormatters,
                     fields: {
                         'is-thing': {
                             validate: [

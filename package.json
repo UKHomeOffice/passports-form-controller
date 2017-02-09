@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npm run lint && npm run unit && npm run cover && npm run check-coverage && npm run snyk",
+    "test": "npm run unit && npm run cover && npm run snyk",
     "unit": "mocha --recursive test/spec/ --require test/helper --timeout 300000",
     "cover": "istanbul cover _mocha -- -R dot --recursive test/spec/ --require test/helper --timeout 300000",
     "check-coverage": "istanbul check-coverage --statement 98.31 --branch 94.89 --function 96.30 --line 98.31",
@@ -25,8 +25,14 @@
   "dependencies": {
     "debug": "^2.1.1",
     "express": "^4.12.3",
+    "hof-behaviour-hooks": "^1.0.0",
+    "hof-behaviour-session": "^1.0.0",
+    "hogan.js": "^3.0.2",
+    "i18n-lookup": "^0.1.0",
     "lodash.clonedeep": "^4.5.0",
+    "mixwith": "^0.1.1",
     "moment": "^2.9.0",
+    "mustache": "^2.3.0",
     "underscore": "^1.7.0"
   },
   "devDependencies": {
@@ -37,6 +43,7 @@
     "istanbul": "^0.4.3",
     "mocha": "^2.1.0",
     "postcode": "0.2.2",
+    "proxyquire": "^1.7.11",
     "reqres": "^1.1.1",
     "sinon": "^1.12.2",
     "sinon-chai": "^2.6.0",
