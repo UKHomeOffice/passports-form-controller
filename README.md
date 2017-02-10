@@ -41,6 +41,7 @@ module.exports = MyForm;
 The Form class allows for a number of insertion points for extended functionality:
 
 * `configure`   Allows for dynamic overwriting of particular points of form configuration based on user session
+* `middlewareMixins`   Allows additional middleware to be added after the configure stage
 * `process`     Allows for custom formatting and processing of input prior to validation
 * `validate`    Allows for custom input validation
 * `getValues`   To define what values the fields are populated with on GET
@@ -148,6 +149,23 @@ For example, for a dynamic address selection component:
 ```js
 MyForm.prototype.configure = function configure(req, res, next) {
     req.form.options.fields['address-select'].options = req.sessionModel.get('addresses');
+    next();
+}
+```
+
+### Middleware mixins
+
+If you want to add middleware that uses dynamic field options then you can use the `middlewareMixins` method. This is called after `configure` so after the dynamic field options are set.
+
+For example, for setting the base url to res locals:
+
+```js
+MyForm.prototype.middlewareMixins = function middlewareMixins(req, res, next) {
+    this.use(this.setBaseUrlLocal).bind(this);
+}
+
+MyForm.prototype.setBaseUrlLocal = function setBaseUrlLocal(req, res, next) {
+    res.locals.baseUrl = req.baseUrl;
     next();
 }
 ```
