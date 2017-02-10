@@ -266,7 +266,7 @@ describe('lib/base-controller', () => {
 
       afterEach(() => {
         BaseController.prototype.getValues.restore();
-      })
+      });
 
       describe('when there\'s a next step', () => {
 

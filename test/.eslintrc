@@ -1,11 +1,13 @@
-{
-    "env": {
-        "node": true,
-        "mocha": true
-    },
-    "globals": {
-        "sinon": true,
-        "expect": true,
-        "request": true
-    }
-}
+extends:
+  - '../.eslintrc'
+  - 'homeoffice/config/testing'
+
+env:
+  es6: true
+
+rules:
+  no-underscore-dangle: 0
+  max-len: 0
+
+globals:
+  request: true

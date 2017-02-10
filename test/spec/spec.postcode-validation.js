@@ -1,56 +1,58 @@
-var Validators = require('../../').validators;
+'use strict';
 
-var PostcodeData = require('../helpers/postcodes');
+const Validators = require('../../').validators;
 
-var isCoverageTest = require.cache[require.resolve('istanbul')];
-var describeUnlessCoverage = isCoverageTest ? describe.skip : describe;
+const PostcodeData = require('../helpers/postcodes');
 
-describe('Postcode validation', function () {
+const isCoverageTest = require.cache[require.resolve('istanbul')];
+const describeUnlessCoverage = isCoverageTest ? describe.skip : describe;
 
-    it('correctly validates empty string', function () {
-        Validators.postcode('').should.be.ok;
+describe('Postcode validation', () => {
+
+  it('correctly validates empty string', () => {
+    Validators.postcode('').should.be.ok;
+  });
+
+  it('correctly rejects invalid postcodes', () => {
+    Validators.postcode('A11AA A11AA').should.not.be.ok;
+    Validators.postcode('N443 6DFG').should.not.be.ok;
+    Validators.postcode('ABCD1234').should.not.be.ok;
+  });
+
+  describeUnlessCoverage('Full postcode test - loads full UK postcode database, may take some time', () => {
+
+    let testData;
+
+    const test = pc => {
+      try {
+        Validators.postcode(pc).should.be.ok;
+      } catch (e) {
+        // echo out the failing postcode
+        global.console.error('Failed postcode:', pc);
+        throw e;
+      }
+    };
+
+    before(done => {
+      PostcodeData.load((err, data) => {
+        testData = data;
+        done(err);
+      });
     });
 
-    it('correctly rejects invalid postcodes', function () {
-        Validators.postcode('A11AA A11AA').should.not.be.ok;
-        Validators.postcode('N443 6DFG').should.not.be.ok;
-        Validators.postcode('ABCD1234').should.not.be.ok;
+    it('correctly validates uk postcodes with a single space', () => {
+      testData.forEach(testPostcode => {
+        const pc = testPostcode.replace(/ \s+/, ' ');
+        test(pc);
+      });
     });
 
-    describeUnlessCoverage('Full postcode test - loads full UK postcode database, may take some time', function () {
-
-        var testData;
-
-        var test = function (pc) {
-            try {
-                Validators.postcode(pc).should.be.ok;
-            } catch (e) {
-                // echo out the failing postcode
-                global.console.error('Failed postcode:', pc);
-                throw e;
-            }
-        };
-
-        before(function (done) {
-            PostcodeData.load(function (err, data) {
-                testData = data;
-                done(err);
-            });
-        });
-
-        it('correctly validates uk postcodes with a single space', function () {
-            testData.forEach(function (testPostcode) {
-                var pc = testPostcode.replace(/ \s+/, ' ');
-                test(pc);
-            });
-        });
-
-        it('correctly validates uk postcodes with no spaces', function () {
-            testData.forEach(function (testPostcode) {
-                var pc = testPostcode.replace(/\s+/g, '');
-                test(pc);
-            });
-        });
+    it('correctly validates uk postcodes with no spaces', () => {
+      testData.forEach(testPostcode => {
+        const pc = testPostcode.replace(/\s+/g, '');
+        test(pc);
+      });
     });
+  });
 
 });

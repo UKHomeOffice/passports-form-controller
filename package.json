@@ -4,12 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npm run unit && npm run cover && npm run snyk",
+    "test": "npm run lint && npm run unit && npm run cover && npm run check-coverage && npm run snyk",
     "unit": "mocha --recursive test/spec/ --require test/helper --timeout 300000",
     "cover": "istanbul cover _mocha -- -R dot --recursive test/spec/ --require test/helper --timeout 300000",
-    "check-coverage": "istanbul check-coverage --statement 98.31 --branch 94.89 --function 96.30 --line 98.31",
+    "check-coverage": "istanbul check-coverage --statement 90 --branch 90 --function 90 --line 90",
     "lint": "eslint .",
-    "snyk": "snyk test",
+    "snyk": "snyk auth $SNYK_TOKEN && snyk test",
     "snyk:dev": "snyk test --dev"
   },
   "repository": {
@@ -29,17 +29,17 @@
     "hof-behaviour-session": "^1.0.0",
     "hogan.js": "^3.0.2",
     "i18n-lookup": "^0.1.0",
-    "lodash.clonedeep": "^4.5.0",
+    "lodash": "^4.17.4",
     "mixwith": "^0.1.1",
     "moment": "^2.9.0",
-    "mustache": "^2.3.0",
-    "underscore": "^1.7.0"
+    "mustache": "^2.3.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",
     "concat-stream": "^1.4.7",
     "csv": "^1.1.0",
     "eslint": "^2.10.2",
+    "eslint-config-homeoffice": "^2.1.2",
     "istanbul": "^0.4.3",
     "mocha": "^2.1.0",
     "postcode": "0.2.2",
