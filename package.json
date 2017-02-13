@@ -9,7 +9,7 @@
     "cover": "istanbul cover _mocha -- -R dot --recursive test/spec/ --require test/helper --timeout 300000",
     "check-coverage": "istanbul check-coverage --statement 90 --branch 90 --function 90 --line 90",
     "lint": "eslint .",
-    "snyk": "snyk auth $SNYK_TOKEN && snyk test",
+    "snyk": "snyk auth $SNYK_AUTH && snyk test",
     "snyk:dev": "snyk test --dev"
   },
   "repository": {
