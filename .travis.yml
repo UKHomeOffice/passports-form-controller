@@ -13,3 +13,10 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - g++-4.8
+
+before_install:
+  - if [[ `npm -v` != 3* ]]; then npm i -g npm@3; fi
+
+env:
+  matrix:
+    secure: "aADSj0sk4sjUYJj+VKzmWcGntgzAwcjQI78tIYtPg0JACZkOPim4ehtxmLnt5gZMgkzGgAS3Mjawm3PYaKh4NRCK1rzVUvBcd2oSxbxgaJZrdU3ovFNPvQia5yPcvbdWyrIhJriLzeIKLcigtNJSgQso6soRzGSUPndztuAxMz4n0/56BklTrJxVCTyZDnshHYIKXxzbmvifVrFp+Mag4oopfU3Y1XVztKDV+X84QkqclGNXmnGQsVupKmhN/VEw9g22iiqBCW1xHDi43CFldP5mw9oCPAEFC5grI0VY6KUoVdgNgaZYVr1BTfIlq1/9aSC2y+ax1cUfLQFQVO4+eFW/6KxdyeE6eLaTX8eEqZD0mqASOmdbMH4kUplmGRDvwi+dH8k8AVonY44JX+f3JJDtlr+wKhfSPW6MSXyGRibLJIpcdPc0r9kAPc4q8f9arYxyIl3u8IHi3NWgKkW047kHWBGr5ka8p29BGNC+qO3rt6j9VTPCL4dFiTMT2nWG82UJJa8nBLmLpijmEFKU+KVOT3ek88YCMN+wUNbiqZcqBkdfb0/bwH/QEZI2o3dlvvuwVSO0dAWkSezSsRXdIGqw15lrawXTGo8D+8AlyfF0wrOJK3uieKWQRz8y+gC+JiJtr7w67Nf3DWG/HNT6EqONEgcjaRT5Z1wMnornA2U="
