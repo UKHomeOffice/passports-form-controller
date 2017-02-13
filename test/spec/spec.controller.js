@@ -4,6 +4,7 @@ const _ = require('lodash');
 const response = require('reqres').res;
 const request = require('reqres').req;
 const proxyquire = require('proxyquire');
+const ErrorClass = require('../../lib/error');
 
 let BaseController = require('../../lib/base-controller');
 
@@ -18,6 +19,11 @@ describe('lib/base-controller', () => {
     });
     sinon.stub(BaseController.prototype, 'use');
     sinon.stub(BaseController.prototype, 'locals').returns({foo: 'bar'});
+  });
+
+  it('sets the correct error class to the instance', () => {
+    controller = new Controller({});
+    controller.Error.should.be.equal(ErrorClass);
   });
 
   afterEach(() => {
