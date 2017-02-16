@@ -23,6 +23,13 @@ describe('Error', () => {
       error.message.should.equal('This field is required');
     });
 
+    it('uses the current error object properties to translate the message', () => {
+      req.translate.withArgs('validation.key.custom').returns('This is a custom message');
+      const error = new ErrorClass('key', { type: 'required' }, req);
+      error.type = 'custom';
+      error.message.should.equal('This is a custom message');
+    });
+
     it('uses default error message for field if no field and type specific message is defined', () => {
       req.translate.withArgs('validation.key.default').returns('Default field message');
       const error = new ErrorClass('key', { type: 'required' }, req);
