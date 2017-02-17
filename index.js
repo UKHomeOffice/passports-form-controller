@@ -10,7 +10,8 @@ class FormController extends mix(Controller).with(Session, Hooks) {}
 FormController.validators = require('./lib/validation/validators');
 FormController.formatters = require('./lib/formatting/formatters');
 
-FormController.Error = require('./lib/error');
+FormController.ValidationError = require('./lib/error');
+FormController.Error = mix(FormController.ValidationError).with(require('./lib/deprecate-error'));
 
 module.exports = FormController;
 module.exports.Controller = Controller;
