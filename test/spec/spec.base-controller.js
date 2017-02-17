@@ -590,20 +590,20 @@ describe('Form Controller', () => {
         req.body = { field: 'value', email: 'foo', name: 'John' };
         form.post(req, res, err => {
           _.each(err, e => {
-            e.should.be.an.instanceOf(form.Error);
+            e.should.be.an.instanceOf(form.ValidationError);
           });
           done();
         });
       });
 
       it('passes request and response objects into error constructor', done => {
-        sinon.stub(form, 'Error');
+        sinon.stub(form, 'ValidationError');
         validators.required.returns(false);
         req.body = { field: 'value', email: 'foo', name: 'John' };
         form.post(req, res, () => {
-          form.Error.should.have.been.calledWithExactly('field', sinon.match({ type: 'required' }), req, res);
-          form.Error.should.have.been.calledWithExactly('email', sinon.match({ type: 'required' }), req, res);
-          form.Error.should.have.been.calledWithExactly('name', sinon.match({ type: 'required' }), req, res);
+          form.ValidationError.should.have.been.calledWithExactly('field', sinon.match({ type: 'required' }), req, res);
+          form.ValidationError.should.have.been.calledWithExactly('email', sinon.match({ type: 'required' }), req, res);
+          form.ValidationError.should.have.been.calledWithExactly('name', sinon.match({ type: 'required' }), req, res);
           done();
         });
       });
@@ -915,8 +915,8 @@ describe('Form Controller', () => {
 
     it('redirects to req.path if not all errors have a redirect value', () => {
       err = {
-        'field-a': new form.Error('field-a'),
-        'field-b': new form.Error('field-b', { redirect: '/exitpage' })
+        'field-a': new form.ValidationError('field-a'),
+        'field-b': new form.ValidationError('field-b', { redirect: '/exitpage' })
       };
       form.errorHandler(err, req, res);
       res.redirect.should.have.been.calledWith('/index');
@@ -1130,7 +1130,7 @@ describe('Form Controller', () => {
         form._configure(req, res, () => {});
         form._validate(req, res, cb);
         cb.should.have.been.calledWith({
-          'is-thing-b': new form.Error('is-thing-b', { type: 'required' })
+          'is-thing-b': new form.ValidationError('is-thing-b', { type: 'required' })
         });
       });
 
@@ -1167,7 +1167,7 @@ describe('Form Controller', () => {
         form._configure(req, res, () => {});
         form._validate(req, res, cb);
         cb.should.have.been.calledWith({
-          'is-thing-b': new form.Error('is-thing-b', { type: 'required' })
+          'is-thing-b': new form.ValidationError('is-thing-b', { type: 'required' })
         });
       });
 

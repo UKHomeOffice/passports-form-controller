@@ -23,7 +23,7 @@ describe('lib/base-controller', () => {
 
   it('sets the correct error class to the instance', () => {
     controller = new Controller({});
-    controller.Error.should.be.equal(ErrorClass);
+    controller.ValidationError.should.equal(ErrorClass);
   });
 
   afterEach(() => {
