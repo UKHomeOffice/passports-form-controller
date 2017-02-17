@@ -11,6 +11,7 @@ FormController.validators = require('./lib/validation/validators');
 FormController.formatters = require('./lib/formatting/formatters');
 
 FormController.Error = require('./lib/error');
+FormController.ValidationError = FormController.Error;
 
 module.exports = FormController;
 module.exports.Controller = Controller;
