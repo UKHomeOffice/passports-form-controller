@@ -339,6 +339,18 @@ describe('Form Controller', () => {
       res.locals.action.should.equal('/index');
     });
 
+    it('sets values to res.locals before calling controller.locals', () => {
+      let values;
+      form.getValues.yields(null, { values: [1] });
+      // need to do the assertion outside of middleware because express
+      // wraps middleware invocation in try/catch so swallows failures
+      form.locals = (_req, _res) => {
+        values = _res.locals.values;
+      };
+      form.get(req, res, cb);
+      values.should.eql({ values: [1] });
+    });
+
   });
 
   describe('post', () => {
