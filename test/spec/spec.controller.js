@@ -191,10 +191,12 @@ describe('lib/base-controller', () => {
         beforeEach(() => {
           req.form.options.fields = {
             'a-field': {
-              mixin: 'input-text'
+              mixin: 'input-text',
+              foo: 'bar'
             },
             'another-field': {
-              mixin: 'input-number'
+              mixin: 'input-number',
+              disableRender: true
             }
           };
           locals = controller.locals(req, res);
@@ -202,18 +204,8 @@ describe('lib/base-controller', () => {
 
         it('should have added a fields array to return object', () => {
           locals.should.have.property('fields').and.be.an('array');
-        });
-
-        it('should have added 2 items to the fields array', () => {
-          locals.fields.length.should.be.equal(2);
-        });
-
-        it('should have added \'a-field\' as \'key\' property to the first object', () => {
-          locals.fields[0].key.should.be.equal('a-field');
-        });
-
-        it('should have added \'input-text\' as \'mixin\' property to the first object', () => {
-          locals.fields[0].mixin.should.be.equal('input-text');
+          locals.fields[0].should.be.eql(Object.assign({}, req.form.options.fields['a-field'], { key: 'a-field' }));
+          locals.fields[1].should.be.eql(Object.assign({}, req.form.options.fields['another-field'], { key: 'another-field' }));
         });
       });
 
