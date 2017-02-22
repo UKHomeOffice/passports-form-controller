@@ -296,40 +296,6 @@ describe('Form Controller', () => {
       res.locals.options.should.eql(form.options);
     });
 
-    it('emits "complete" event if form has no fields', () => {
-      form.options.fields = {};
-      form.get(req, res, cb);
-      form.emit.withArgs('complete').should.have.been.calledOnce;
-      form.emit.withArgs('complete').should.have.been.calledOn(form);
-      form.emit.should.have.been.calledWithExactly('complete', req, res);
-    });
-
-    it('does not emit "complete" event if form has dynamic fields added at configure step', () => {
-      form.options.fields = {};
-      // eslint-disable-next-line no-shadow
-      form.configure = (req, res, next) => {
-        req.form.options.fields.name = {
-          mixin: 'input-text',
-          validate: 'required'
-        };
-        next();
-      };
-      form.get(req, res, cb);
-      form.emit.withArgs('complete').should.not.have.been.called;
-    });
-
-    it('does not emit "complete" event if form has fields', () => {
-      form = new Form({ template: 'index', fields: { key: {} } });
-      form.get(req, res, cb);
-      form.emit.withArgs('complete').should.not.have.been.called;
-    });
-
-    it('does not emit "complete" event if form has no defined next step', () => {
-      delete form.options.next;
-      form.get(req, res, cb);
-      form.emit.withArgs('complete').should.not.have.been.called;
-    });
-
     it('sets the action property on res.locals', () => {
       form.get(req, res, cb);
       res.locals.action.should.equal('/base/index');
