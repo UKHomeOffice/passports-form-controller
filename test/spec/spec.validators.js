@@ -489,7 +489,6 @@ describe('Validators', function () {
         describe('invalid values', function () {
             var inputs = [
                 '2014-11-05',
-                ['2014-12-16', '2014-12-16'],
                 ['2013-12-15', '2013-12-16'],
                 ['2014-11-04', 1, 'day'],
                 ['1993-11-05', 21, 'years'],
@@ -510,6 +509,7 @@ describe('Validators', function () {
         describe('valid inputs', function () {
             var inputs = [
                 ['', '2014-12-15'],
+                ['2014-12-16', '2014-12-16'],
                 ['2014-12-16', '2014-12-15'],
                 ['2014-11-05', 1, 'day'],
                 ['1993-11-06', 21, 'years'],
