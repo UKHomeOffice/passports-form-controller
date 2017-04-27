@@ -25,8 +25,8 @@
   "dependencies": {
     "debug": "^2.1.1",
     "deprecate": "^1.0.0",
-    "express": "^4.12.3",
-    "hof-behaviour-hooks": "^1.0.0",
+    "express": "^4.15.2",
+    "hof-behaviour-hooks": "^1.0.1",
     "hof-behaviour-session": "^1.0.0",
     "hogan.js": "^3.0.2",
     "i18n-lookup": "^0.1.0",
