@@ -391,6 +391,18 @@ describe('Form Controller', () => {
       fn.should.not.throw();
     });
 
+    it('supports functions as formatters', () => {
+      form = new Form({
+        template: 'index',
+        fields: {
+          field: { formatter: ['uppercase', v => v.replace('A', 'E')] }
+        }
+      });
+      req.body.field = 'value';
+      form.post(req, res, cb);
+      req.form.values.field.should.equal('VELUE');
+    });
+
     it('applies formatter to array of values', () => {
       form = new Form({
         template: 'index',
