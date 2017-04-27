@@ -375,6 +375,21 @@ describe('lib/base-controller', () => {
             controller.getNextStep(req).should.equal('/confirm');
           });
 
+          it('should follow fork if fork has `continueOnEdit` set to true', () => {
+            getStub.returns(['/target-page']);
+            req.form.values['example-radio'] = 'superman';
+            req.form.options.forks = [{
+              target: '/target-page',
+              continueOnEdit: true,
+              condition(r) {
+                return r.form.values['example-radio'] === 'superman';
+              }
+            }];
+            req.form.options.continueOnEdit = false;
+            req.params.action = 'edit';
+            controller.getNextStep(req).should.equal('/target-page/edit');
+          });
+
           it('should return /a-base-url/confirm if baseUrl is set', () => {
             getStub.returns(['/target-page']);
             req.form.values['example-radio'] = 'superman';
