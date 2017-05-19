@@ -626,6 +626,100 @@ describe('lib/base-controller', () => {
       });
     });
 
+    describe('getErrorMessage', () => {
+
+      let req;
+      let res;
+
+      beforeEach(() => {
+        req = request();
+        res = response();
+        req.translate = sinon.stub().returns('');
+      });
+
+      it('uses the current error object properties to translate the message', () => {
+        req.translate.withArgs('validation.key.custom').returns('This is a custom message');
+        const error = new ErrorClass('key', { type: 'custom' });
+        controller.getErrorMessage(error, req, res).should.equal('This is a custom message');
+      });
+
+      it('uses default error message for field if no field and type specific message is defined', () => {
+        req.translate.withArgs('validation.key.default').returns('Default field message');
+        const error = new ErrorClass('key', { type: 'required' });
+        controller.getErrorMessage(error, req, res).should.equal('Default field message');
+      });
+
+      it('uses default error message for validation type if no field level message is defined', () => {
+        req.translate.withArgs('validation.required').returns('Default required message');
+        const error = new ErrorClass('key', { type: 'required' });
+        controller.getErrorMessage(error, req, res).should.equal('Default required message');
+      });
+
+      it('uses global default error message if no type of field level messages are defined', () => {
+        req.translate.withArgs('validation.default').returns('Global default');
+        const error = new ErrorClass('key', { type: 'required' });
+        controller.getErrorMessage(error, req, res).should.equal('Global default');
+      });
+
+      it('populates messages with field label', () => {
+        req.translate.withArgs('validation.key.required').returns('Your {{label}} is required');
+        req.translate.withArgs('fields.key.label').returns('Field label');
+        const error = new ErrorClass('key', { type: 'required' });
+        controller.getErrorMessage(error, req, res).should.equal('Your field label is required');
+      });
+
+      it('populates messages with legend', () => {
+        req.translate.withArgs('validation.key.required').returns('Your {{legend}} is required');
+        req.translate.withArgs('fields.key.legend').returns('date');
+        const error = new ErrorClass('key', { type: 'required' });
+        controller.getErrorMessage(error, req, res).should.equal('Your date is required');
+      });
+
+      it('populates maxlength messages with the maximum length', () => {
+        req.translate.withArgs('validation.key.maxlength').returns('This must be less than {{maxlength}} characters');
+        const error = new ErrorClass('key', { type: 'maxlength', arguments: [10] });
+        controller.getErrorMessage(error, req, res).should.equal('This must be less than 10 characters');
+      });
+
+      it('populates minlength messages with the minimum length', () => {
+        req.translate.withArgs('validation.key.minlength').returns('This must be no more than {{minlength}} characters');
+        const error = new ErrorClass('key', { type: 'minlength', arguments: [10] });
+        controller.getErrorMessage(error, req, res).should.equal('This must be no more than 10 characters');
+      });
+
+      it('populates exactlength messages with the required length', () => {
+        req.translate.withArgs('validation.key.exactlength').returns('This must be {{exactlength}} characters');
+        const error = new ErrorClass('key', { type: 'exactlength', arguments: [10] });
+        controller.getErrorMessage(error, req, res).should.equal('This must be 10 characters');
+      });
+
+      it('populates before messages with the required difference', () => {
+        req.translate.withArgs('validation.key.before').returns('This must be more than {{diff}} ago');
+        const error = new ErrorClass('key', { type: 'before', arguments: [5, 'days'] });
+        controller.getErrorMessage(error, req, res).should.equal('This must be more than 5 days ago');
+      });
+
+      it('populates after messages with the required difference', () => {
+        req.translate.withArgs('validation.key.after').returns('This must be less than {{diff}} ago');
+        const error = new ErrorClass('key', { type: 'after', arguments: [5, 'days'] });
+        controller.getErrorMessage(error, req, res).should.equal('This must be less than 5 days ago');
+      });
+
+      it('populates custom messages with the required constiable', () => {
+        req.translate.withArgs('validation.key.custom').returns('This must be {{custom}}');
+        const error = new ErrorClass('key', { type: 'custom', arguments: ['dynamic'] });
+        controller.getErrorMessage(error, req, res).should.equal('This must be dynamic');
+      });
+
+      it('populates messages with values from `res.locals` when present', () => {
+        req.translate.withArgs('validation.key.required').returns('This must be a {{something}}');
+        res.locals.something = 'value';
+        const error = new ErrorClass('key', { type: 'required' });
+        controller.getErrorMessage(error, req, res).should.equal('This must be a value');
+      });
+
+    });
+
   });
 
 });
