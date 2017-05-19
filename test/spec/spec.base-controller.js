@@ -3,7 +3,7 @@
 const Form = require('../../lib/base-controller');
 const validators = require('../../lib/validation/validators');
 const formatters = require('../../lib/formatting/formatters');
-const FormError = require('../../lib/base-error');
+const FormError = require('../../lib/validation-error');
 
 const _ = require('lodash');
 const EventEmitter = require('events').EventEmitter;
@@ -586,18 +586,6 @@ describe('Form Controller', () => {
         });
       });
 
-      it('passes request and response objects into error constructor', done => {
-        sinon.stub(form, 'ValidationError');
-        validators.required.returns(false);
-        req.body = { field: 'value', email: 'foo', name: 'John' };
-        form.post(req, res, () => {
-          form.ValidationError.should.have.been.calledWithExactly('field', sinon.match({ type: 'required' }), req, res);
-          form.ValidationError.should.have.been.calledWithExactly('email', sinon.match({ type: 'required' }), req, res);
-          form.ValidationError.should.have.been.calledWithExactly('name', sinon.match({ type: 'required' }), req, res);
-          done();
-        });
-      });
-
     });
 
     describe('invalid form-level validation', () => {
@@ -997,10 +985,10 @@ describe('Form Controller', () => {
 
       it('should *only* place errors against a single error key if the validator that created them belongs to a group', () => {
         form._validate(req, res, cb);
-        cb.should.be.calledWith({
+        cb.should.be.calledWith(sinon.match({
           'is-thing': new FormError('is-thing', { 'type': 'required' }),
           'is-thing-c': new FormError('is-thing-c', { 'type': 'required' })
-        });
+        }));
       });
 
     });
@@ -1119,9 +1107,9 @@ describe('Form Controller', () => {
         });
         form._configure(req, res, () => {});
         form._validate(req, res, cb);
-        cb.should.have.been.calledWith({
+        cb.should.have.been.calledWith(sinon.match({
           'is-thing-b': new form.ValidationError('is-thing-b', { type: 'required' })
-        });
+        }));
       });
 
       it('should be validated if the dependency doesn\'t exist in the step\'s fields', () => {
@@ -1156,9 +1144,9 @@ describe('Form Controller', () => {
         });
         form._configure(req, res, () => {});
         form._validate(req, res, cb);
-        cb.should.have.been.calledWith({
+        cb.should.have.been.calledWith(sinon.match({
           'is-thing-b': new form.ValidationError('is-thing-b', { type: 'required' })
-        });
+        }));
       });
 
       it('shouldn\'t be validated if the dependency exists but the value doesn\'t match', () => {
