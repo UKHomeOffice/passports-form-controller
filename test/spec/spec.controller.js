@@ -4,7 +4,7 @@ const _ = require('lodash');
 const response = require('reqres').res;
 const request = require('reqres').req;
 const proxyquire = require('proxyquire');
-const ErrorClass = require('../../lib/error');
+const ErrorClass = require('../../lib/validation-error');
 
 let BaseController = require('../../lib/base-controller');
 
@@ -576,6 +576,54 @@ describe('lib/base-controller', () => {
         });
       });
 
+    });
+
+    describe('getTitle()', () => {
+      let lookup;
+      let fields;
+      beforeEach(() => {
+        lookup = sinon.stub();
+        fields = {
+          'field-one': {}
+        };
+      });
+
+      it('calls lookup with the correct list of keys', () => {
+        const expected = [
+          'pages.step-one.header',
+          'fields.field-one.label',
+          'fields.field-one.legend'
+        ];
+        controller.getTitle('step-one', lookup, fields);
+        lookup.firstCall.args[0].should.be.deep.equal(expected);
+      });
+
+      it('passes the locals hash to lookup as second arg', () => {
+        const locals = {};
+        controller.getTitle('step-one', lookup, fields, locals);
+        lookup.firstCall.args[1].should.be.equal(locals);
+      });
+    });
+
+    describe('getIntro()', () => {
+      let lookup;
+      beforeEach(() => {
+        lookup = sinon.stub();
+      });
+
+      it('calls lookup with the correct list of keys', () => {
+        const expected = [
+          'pages.step-one.intro'
+        ];
+        controller.getIntro('step-one', lookup);
+        lookup.firstCall.args[0].should.be.deep.equal(expected);
+      });
+
+      it('passes locals too lookup as second arg', () => {
+        const locals = {};
+        controller.getIntro('step-one', lookup, locals);
+        lookup.firstCall.args[1].should.be.equal(locals);
+      });
     });
 
   });

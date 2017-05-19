@@ -1,6 +1,6 @@
 'use strict';
 
-const ErrorClass = require('../../lib/error');
+const ErrorClass = require('../../lib/validation-error');
 
 const request = require('reqres').req;
 const response = require('reqres').res;
@@ -16,7 +16,17 @@ describe('Error', () => {
     res = response();
   });
 
-  describe('getMessage', () => {
+  it('sets its key property to the key passed', () => {
+    const err = new ErrorClass('field', { type: 'type' });
+    err.key.should.equal('field');
+  });
+
+  it('sets its key property to the type option passed', () => {
+    const err = new ErrorClass('field', { type: 'type' });
+    err.type.should.equal('type');
+  });
+
+  xdescribe('getMessage', () => {
     it('uses the translate method from the initialising request to translate the message', () => {
       req.translate.withArgs('validation.key.required').returns('This field is required');
       const error = new ErrorClass('key', { type: 'required' }, req);
