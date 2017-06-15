@@ -140,16 +140,19 @@ describe('lib/base-controller', () => {
 
     describe('.locals()', () => {
 
-      const req = {
-        translate: () => '',
-        params: {}
-      };
-      const res = response();
+      let req;
+      let res;
 
       beforeEach((done) => {
+        req = {
+          form: {
+            errors: {}
+          },
+          translate: () => '',
+          params: {}
+        };
+        res = response();
         sinon.stub(Controller.prototype, 'getBackLink');
-        sinon.stub(Controller.prototype, 'getErrorLength');
-        Controller.prototype.getErrorLength.returns({single: true});
         controller = new Controller({
           template: 'foo',
           route: '/bar'
@@ -159,18 +162,10 @@ describe('lib/base-controller', () => {
 
       afterEach(() => {
         Controller.prototype.getBackLink.restore();
-        Controller.prototype.getErrorLength.restore();
       });
 
       it('always extends from parent locals', () => {
         controller.locals(req, res).should.have.property('foo').and.always.equal('bar');
-      });
-
-      it('returns errorLength.single if there is one error', () => {
-        controller.locals(req, res).should.have.property('errorLength')
-          .and.deep.equal({
-            single: true
-          });
       });
 
       it('calls getBackLink', () => {
@@ -178,12 +173,31 @@ describe('lib/base-controller', () => {
         Controller.prototype.getBackLink.should.have.been.calledOnce;
       });
 
+      it('returns errorLength.single if there is one error', () => {
+        req.form.errors = {
+          one: true
+        };
+        controller.locals(req, res).should.have.property('errorLength')
+          .and.deep.equal({
+            single: true
+          });
+      });
+
       it('returns errorLength.multiple if there is more than one error', () => {
-        Controller.prototype.getErrorLength.returns({multiple: true});
+        req.form.errors = {
+          one: true,
+          two: true
+        };
         controller.locals(req, res).should.have.property('errorLength')
           .and.deep.equal({
             multiple: true
           });
+      });
+
+      it('returns errorLength undefined if req.form.errors is not set', () => {
+        delete req.form.errors;
+        controller.locals(req, res).should.have.property('errorLength')
+          .and.be.undefined;
       });
 
       describe('with fields', () => {
