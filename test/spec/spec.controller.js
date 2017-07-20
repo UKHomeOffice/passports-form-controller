@@ -8,7 +8,7 @@ const ErrorClass = require('../../lib/validation-error');
 
 let BaseController = require('../../lib/base-controller');
 
-describe('lib/base-controller', () => {
+describe('lib/controller', () => {
 
   let Controller;
   let controller;
@@ -638,6 +638,108 @@ describe('lib/base-controller', () => {
         controller.getIntro('step-one', lookup, locals);
         lookup.firstCall.args[1].should.be.equal(locals);
       });
+    });
+
+    describe('getErrors', () => {
+
+      let req;
+      let res;
+      let errors;
+
+      beforeEach(() => {
+
+        errors = {
+          key1: {
+            key: 'key1',
+            type: 'required'
+          },
+          key2: {
+            key: 'key2',
+            type: 'maxlength',
+            arguments: [10]
+          },
+          key3: {
+            key: 'key3',
+            type: 'before',
+            arguments: [3, 'years']
+          }
+        };
+
+        req = request();
+        req.form = {};
+        res = response();
+        sinon.stub(controller, 'getErrors').returns(errors);
+        sinon.stub(controller, 'getErrorMessage', e => `error for ${e.key}`);
+      });
+
+      afterEach(() => {
+        controller.getErrors.restore();
+        controller.getErrorMessage.restore();
+      });
+
+      it('sets response from `getErrors` onto req.form.errors', (done) => {
+        controller._getErrors(req, res, () => {
+          req.form.errors.should.have.keys('key1', 'key2', 'key3');
+          done();
+        });
+      });
+
+      it('adds a message property onto each error', (done) => {
+        controller._getErrors(req, res, () => {
+          req.form.errors.should.have.keys('key1', 'key2', 'key3');
+
+          req.form.errors.key1.should.have.a.property('message');
+          controller.getErrorMessage.should.have.been.calledWith(errors.key1, req, res);
+          req.form.errors.key1.message.should.equal('error for key1');
+
+          req.form.errors.key2.should.have.a.property('message');
+          controller.getErrorMessage.should.have.been.calledWith(errors.key2, req, res);
+          req.form.errors.key2.message.should.equal('error for key2');
+
+          req.form.errors.key3.should.have.a.property('message');
+          controller.getErrorMessage.should.have.been.calledWith(errors.key3, req, res);
+          req.form.errors.key3.message.should.equal('error for key3');
+          done();
+        });
+      });
+
+    });
+
+    describe('getErrorLength', () => {
+      let req;
+      let res;
+
+      beforeEach(() => {
+        req = request();
+        req.form = {};
+        res = response();
+      });
+
+      it('returns `{single:true}` if only one error is present', () => {
+        req.form.errors = {
+          one: {
+            key: 'one'
+          }
+        };
+        controller.getErrorLength(req, res).should.eql({ single: true });
+      });
+
+      it('returns `{multiple:true}` if more than one error is present', () => {
+        req.form.errors = {
+          one: {
+            key: 'one'
+          },
+          two: {
+            key: 'two'
+          }
+        };
+        controller.getErrorLength(req, res).should.eql({ multiple: true });
+      });
+
+      it('returns undefined if no errors are present', () => {
+        expect(controller.getErrorLength(req, res)).to.equal(undefined);
+      });
+
     });
 
     describe('getErrorMessage', () => {
