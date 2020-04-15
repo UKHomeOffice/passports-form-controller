@@ -271,6 +271,9 @@ describe('lib/controller', () => {
         };
         controller = new Controller({template: 'foo'});
         BaseController.prototype.getNextStep.returns('/');
+        BaseController.prototype.getValues = function(myReq, myRes, callback) {
+            callback();
+        };
         controller._configure(req, res, done);
       });
 
@@ -315,6 +318,7 @@ describe('lib/controller', () => {
             get: getStub
           };
           req.form.values = {};
+          req.form.historicalValues = {};
           BaseController.prototype.getNextStep.returns('/next-page');
         });
 
@@ -333,9 +337,37 @@ describe('lib/controller', () => {
           });
         });
 
+        describe('when the condition config is met by a historical form', () => {
+          it('the next step is the fork target', () => {
+            req.form.historicalValues = {'example-radio': 'superman'};
+            req.form.options.forks = [{
+              target: '/target-page',
+              condition: {
+                field: 'example-radio',
+                value: 'superman'
+              }
+            }];
+            controller.getNextStep(req, {}).should.contain('/target-page');
+          });
+        });
+
         describe('when the condition config is not met', () => {
           it('the next step is the original next target', () => {
             req.form.values['example-radio'] = 'superman';
+            req.form.options.forks = [{
+              target: '/target-page',
+              condition: {
+                field: 'example-radio',
+                value: 'lex luther'
+              }
+            }];
+            controller.getNextStep(req, {}).should.equal('/next-page');
+          });
+        });
+
+        describe('when the condition config is not met by a historical form', () => {
+          it('the next step is the original next target', () => {
+            req.form.historicalValues = {'example-radio': 'superman'};
             req.form.options.forks = [{
               target: '/target-page',
               condition: {
