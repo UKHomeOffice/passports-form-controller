@@ -353,6 +353,7 @@ describe('Form Controller', () => {
       sinon.stub(Form.prototype, 'validate').yields(null);
       sinon.stub(Form.prototype, 'setErrors');
       sinon.stub(Form.prototype, 'saveValues').yields(null);
+      sinon.stub(Form.prototype, 'getValues').yields(null, {});
       sinon.stub(Form.prototype, 'successHandler');
       _.each(validators, (fn, key) => {
         sinon.stub(validators, key).returns(true);
@@ -363,6 +364,7 @@ describe('Form Controller', () => {
       Form.prototype.validate.restore();
       Form.prototype.setErrors.restore();
       Form.prototype.saveValues.restore();
+      Form.prototype.getValues.restore();
       Form.prototype.successHandler.restore();
       _.each(validators, (fn, key) => {
         validators[key].restore();
@@ -425,6 +427,18 @@ describe('Form Controller', () => {
         'bool',
         'options'
       ]);
+    });
+
+    it('sets values to req.form.historicalValues', () => {
+      Form.prototype.getValues.yields(null, { foo: 'bar' });
+      form.post(req, res, cb);
+      req.form.historicalValues.should.eql({ foo: 'bar' });
+    });
+
+    it('defaults req.form.historicalValues to an empty object', () => {
+      Form.prototype.getValues.yields(null);
+      form.post(req, res, cb);
+      req.form.historicalValues.should.eql({ });
     });
 
     it('sets errors to null', () => {
