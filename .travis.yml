@@ -17,7 +17,7 @@ addons:
       - g++-4.8
 
 before_install:
-  - if [[ `npm -v` != 3* ]]; then npm i -g npm@3; fi
+  - if [[ `npm -v` != 6* ]]; then npm i -g npm@6; fi
 
 env:
   matrix:
