@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/UKHomeOfficeForms/hof-form-controller",
   "dependencies": {
-    "debug": "^2.6.8",
+    "debug": "^2.6.9",
     "deprecate": "^1.0.0",
     "express": "^4.17.1",
     "hof-behaviour-hooks": "^1.0.2",
@@ -30,7 +30,7 @@
     "i18n-lookup": "^0.1.0",
     "lodash": "^4.17.15",
     "mixwith": "^0.1.1",
-    "moment": "^2.9.0",
+    "moment": "^2.24.0",
     "mustache": "^2.3.0"
   },
   "devDependencies": {
