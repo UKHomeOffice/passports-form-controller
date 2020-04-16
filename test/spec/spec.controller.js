@@ -379,6 +379,20 @@ describe('lib/controller', () => {
           });
         });
 
+        describe('when the condition config is not met and historical values are not present', () => {
+          it('the next step is the original next target', () => {
+            req.form.historicalValues = null;
+            req.form.options.forks = [{
+              target: '/target-page',
+              condition: {
+                field: 'example-radio',
+                value: 'lex luther'
+              }
+            }];
+            controller.getNextStep(req, {}).should.equal('/next-page');
+          });
+        });
+
         describe('when the condition is => met', () => {
           it('the next step is the fork target', () => {
             req.form.values['example-radio'] = 'superman';
