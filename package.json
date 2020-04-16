@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npm run lint && npm run unit && npm run cover && npm run check-coverage",
+    "test": "npm run lint && npm run unit && npm run cover && npm run check-coverage && npm audit --audit-level=high",
     "unit": "mocha --recursive test/spec/ --require test/helper --timeout 300000",
-    "cover": "istanbul cover _mocha -- -R dot --recursive test/spec/ --require test/helper --timeout 300000",
-    "check-coverage": "istanbul check-coverage --statement 90 --branch 90 --function 90 --line 90",
+    "cover": "nyc mocha --recursive test/spec/ --require test/helper --timeout 300000",
+    "check-coverage": "nyc check-coverage --statement 90 --branch 90 --function 90 --line 90",
     "lint": "eslint ."
   },
   "repository": {
@@ -39,7 +39,7 @@
     "csv": "^5.3.2",
     "eslint": "^2.10.2",
     "eslint-config-homeoffice": "^2.1.2",
-    "istanbul": "^0.4.3",
+    "nyc": "^15.0.1",
     "mocha": "^7.1.1",
     "postcode": "0.2.2",
     "proxyquire": "^1.7.11",

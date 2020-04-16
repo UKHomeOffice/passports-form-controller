@@ -4,7 +4,7 @@ const Validators = require('../../').validators;
 
 const PostcodeData = require('../helpers/postcodes');
 
-const isCoverageTest = require.cache[require.resolve('istanbul')];
+const isCoverageTest = require.cache[require.resolve('nyc')];
 const describeUnlessCoverage = isCoverageTest ? describe.skip : describe;
 
 describe('Postcode validation', () => {
