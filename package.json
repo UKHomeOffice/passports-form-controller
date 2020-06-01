@@ -1,11 +1,12 @@
 {
   "name": "hof-form-controller",
-  "version": "6.1.0",
+  "version": "6.1.1",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "npm run lint && npm run unit && npm run cover && npm run check-coverage && npm audit --audit-level=high",
     "unit": "mocha --recursive test/spec/ --require test/helper --timeout 300000",
+    "unit:debug": "mocha --recursive test/spec/ --require test/helper --timeout 300000 --inspect-brk",
     "cover": "nyc mocha --recursive test/spec/ --require test/helper --timeout 300000",
     "check-coverage": "nyc check-coverage --statement 90 --branch 90 --function 90 --line 90",
     "lint": "eslint ."
@@ -39,8 +40,8 @@
     "csv": "^5.3.2",
     "eslint": "^2.10.2",
     "eslint-config-homeoffice": "^2.1.2",
-    "nyc": "^15.0.1",
     "mocha": "^7.1.1",
+    "nyc": "^15.1.0",
     "postcode": "0.2.2",
     "proxyquire": "^1.7.11",
     "reqres": "^1.1.1",
