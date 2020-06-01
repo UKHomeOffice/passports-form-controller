@@ -755,8 +755,48 @@ describe('Form Controller', () => {
       form._getForkTarget(req, {}).should.contain('/target-page');
     });
 
+    it('returns the fork target if the condition config is met in historical values map', () => {
+      req.form.historicalValues = {
+        'example-radio': 'conditionMet'
+      };
+      req.form.options.forks = [{
+        target: '/target-page',
+        condition: {
+          field: 'example-radio',
+          value: 'conditionMet'
+        }
+      }];
+      form._getForkTarget(req, {}).should.contain('/target-page');
+    });
+
+    it('returns the original next if the condition config is not met in historical values map', () => {
+      req.form.historicalValues = {
+        'example-radio': 'conditionNotMet'
+      };
+      req.form.options.forks = [{
+        target: '/target-page',
+        condition: {
+          field: 'example-radio',
+          value: 'conditionMet'
+        }
+      }];
+      form._getForkTarget(req, {}).should.contain('/next-page');
+    });
+
     it('returns the original next target if the condition config is not met', () => {
       req.form.values['example-radio'] = 'conditionNotMet';
+      req.form.options.forks = [{
+        target: '/target-page',
+        condition: {
+          field: 'example-radio',
+          value: 'conditionMet'
+        }
+      }];
+      form._getForkTarget(req, {}).should.equal('/next-page');
+    });
+
+    it('returns the original next target if the condition config value is not present', () => {
+      delete req.form.values['example-radio'];
       req.form.options.forks = [{
         target: '/target-page',
         condition: {
