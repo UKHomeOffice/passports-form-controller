@@ -930,6 +930,7 @@ describe('Form Controller', () => {
       form = new Form({ template: 'index', next: '/success' });
       req = request({
         path: '/index',
+        originalUrl: '/app/index',
         form: {
           values: { field: 'value' }
         }
@@ -939,19 +940,19 @@ describe('Form Controller', () => {
       };
     });
 
-    it('redirects to req.path if no redirecting error is defined', () => {
+    it('redirects to req.originalUrl if no redirecting error is defined', () => {
       form = new Form({ template: 'index' });
       form.errorHandler({ field: err }, req, res);
-      res.redirect.should.have.been.calledWith('/index');
+      res.redirect.should.have.been.calledWith('/app/index');
     });
 
-    it('redirects to req.path if not all errors have a redirect value', () => {
+    it('redirects to req.originalUrl if not all errors have a redirect value', () => {
       err = {
         'field-a': new form.ValidationError('field-a'),
         'field-b': new form.ValidationError('field-b', { redirect: '/exitpage' })
       };
       form.errorHandler(err, req, res);
-      res.redirect.should.have.been.calledWith('/index');
+      res.redirect.should.have.been.calledWith('/app/index');
     });
 
     it('redirects to error redirect if all errors have a redirect value', () => {
@@ -960,22 +961,16 @@ describe('Form Controller', () => {
       res.redirect.should.have.been.calledWith('/exitpage');
     });
 
-    it('prefixes redirect with req.baseUrl if it is defined', () => {
-      req.baseUrl = '/foo';
-      form.errorHandler({ field: err }, req, res);
-      res.redirect.should.have.been.calledWith('/foo/index');
-    });
-
     it('redirects to another site if defined', () => {
       err.redirect = 'http://www.gov.uk/';
-      req.baseUrl = '/foo';
+      req.originalUrl = '/foo';
       form.errorHandler({ field: err }, req, res);
       res.redirect.should.have.been.calledWith('http://www.gov.uk/');
     });
 
     it('redirects to another secure site if defined', () => {
       err.redirect = 'https://www.gov.uk/';
-      req.baseUrl = '/foo';
+      req.originalUrl = '/foo';
       form.errorHandler({ field: err }, req, res);
       res.redirect.should.have.been.calledWith('https://www.gov.uk/');
     });
