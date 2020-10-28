@@ -119,7 +119,9 @@ describe('Validators', () => {
         'test@example.com',
         'test+suffix@gmail.com',
         'test+suffix@digital.cabinet-office.gov.uk',
-        'test.suffix@digital.cabinet-office.gov.uk'
+        'test.suffix@digital.cabinet-office.gov.uk',
+        'test\'suffix@digital.cabinet-office.gov.uk',
+        'test@example.domainOverSixChars'
       ];
       inputs.forEach(i => {
         it(testName(i), () => {
