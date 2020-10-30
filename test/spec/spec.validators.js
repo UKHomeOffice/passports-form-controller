@@ -625,6 +625,148 @@ describe('Validators', () => {
 
   });
 
+  describe('min', () => {
+    describe('invalid values', () => {
+      const inputs = [
+        [-5, -4],
+        [-1, 0],
+        [9, 10]
+      ];
+      inputs.forEach(i => {
+        it(testName(i), () => {
+          Validators.min(i[0], i[1]).should.not.be.ok;
+        });
+      });
+    });
+    describe('valid values', () => {
+      const inputs = [
+        [-4, -5],
+        [0, -1],
+        [10, 9],
+        [10, 10]
+      ];
+      inputs.forEach(i => {
+        it(testName(i), () => {
+          Validators.min(i[0], i[1]).should.be.ok;
+        });
+      });
+    });
+  });
+
+  describe('max', () => {
+    describe('invalid values', () => {
+      const inputs = [
+        [-4, -5],
+        [0, -1],
+        [10, 9]
+      ];
+      inputs.forEach(i => {
+        it(testName(i), () => {
+          Validators.max(i[0], i[1]).should.not.be.ok;
+        });
+      });
+    });
+    describe('valid values', () => {
+      const inputs = [
+        [10, 10],
+        [-5, -4],
+        [-1, 0],
+        [9, 10]
+      ];
+      inputs.forEach(i => {
+        it(testName(i), () => {
+          Validators.max(i[0], i[1]).should.be.ok;
+        });
+      });
+    });
+  });
+
+  describe('between', () => {
+    describe('invalid values', () => {
+      const inputs = [
+        [-11, -10, 10],
+        [11, -10, 10]
+      ];
+      inputs.forEach(i => {
+        it(testName(i), () => {
+          Validators.between(i[0], i[1], i[2]).should.not.be.ok;
+        });
+      });
+    });
+    describe('valid values', () => {
+      const inputs = [
+        [-5, -10, 10],
+        [5, -10, 10],
+        [0, -10, 10],
+        [-10, -10, 10],
+        [10, -10, 10]
+      ];
+      inputs.forEach(i => {
+        it(testName(i), () => {
+          Validators.between(i[0], i[1], i[2]).should.be.ok;
+        });
+      });
+    });
+  });
+
+  describe('decimal', () => {
+    describe('invalid values', () => {
+      const inputs = [
+        '0.001',
+        '1.990',
+        'ABC',
+        '0.000',
+        '-5.999',
+        1.990
+      ];
+      inputs.forEach(i => {
+        it(testName(i), () => {
+          Validators.decimal(i).should.not.be.ok;
+        });
+      });
+    });
+    describe('valid values', () => {
+      const inputs = [
+        '0.1',
+        '0.11',
+        '-0.1',
+        '-0.11',
+        '1',
+        '-1'
+      ];
+      inputs.forEach(i => {
+        it(testName(i), () => {
+          Validators.decimal(i).should.be.ok;
+        });
+      });
+    });
+  });
+
+  describe('over18', () => {
+    describe('invalid values', () => {
+      const inputs = [
+        '2014-11-05',
+        '1996-11-06'
+      ];
+      inputs.forEach(i => {
+        it(testName(i), () => {
+          Validators.over18(i).should.not.be.ok;
+        });
+      });
+    });
+    describe('valid values', () => {
+      const inputs = [
+        '1996-11-05',
+        '1980-01-01'
+      ];
+      inputs.forEach(i => {
+        it(testName(i), () => {
+          Validators.over18(i).should.be.ok;
+        });
+      });
+    });
+  });
+
   describe('custom validators', () => {
     let fields;
     let validator;
@@ -664,19 +806,18 @@ describe('Validators', () => {
         validator('field-2');
       } catch (err) {
         err.should.be.an('error')
-        .and.have.property('message')
-        .and.be.equal('Custom validator needs to be a named function');
+          .and.have.property('message')
+          .and.be.equal('Custom validator needs to be a named function');
       }
     });
 
     it('uses the name of the function as the error type', () => {
       validator('field-3').should.have.property('type')
-      .and.be.equal('fail');
+        .and.be.equal('fail');
     });
 
     it('validates using the passed values', () => {
       expect(validator('field-4', true)).to.be.undefined;
     });
   });
-
 });
