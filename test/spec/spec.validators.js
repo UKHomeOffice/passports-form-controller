@@ -51,7 +51,6 @@ describe('Validators', () => {
         });
       });
     });
-
   });
 
   describe('url', () => {
@@ -295,7 +294,46 @@ describe('Validators', () => {
         });
       });
     });
+  });
 
+  describe('internationalPhoneNumber', () => {
+    describe('invalid values', function() {
+      const inputs = [
+        '123',
+        'abc',
+        'abc123',
+        '123+456',
+        '(0)+12345678',
+        '0123456789123456',
+        '0109758351'
+      ];
+      inputs.forEach(i => {
+        it(testName(i), () => {
+          Validators.internationalPhoneNumber(i).should.not.be.ok;
+        });
+      });
+    });
+
+    describe('valid values', function() {
+      const inputs = [
+        '02079460000',
+        '07900000000',
+        '+442079460000',
+        '+447900000000',
+        '+33609555167',
+        '0033609555167',
+        '020 7946 0000',
+        '+44020 79460000',
+        '+963-995-5566-40',
+        '+90-505-5578-633',
+        '+22898555987'
+      ];
+      inputs.forEach(i => {
+        it(testName(i), () => {
+          Validators.internationalPhoneNumber(i).should.be.ok;
+        });
+      });
+    });
   });
 
   describe('ukmobilephone', () => {
