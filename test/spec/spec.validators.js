@@ -89,6 +89,36 @@ describe('Validators', () => {
 
   });
 
+  describe('notUrl', () => {
+    describe('invalid values', () => {
+      const inputs = [
+        'www.something.com',
+        'http://www.something.com',
+        'test.co.uk/somepage.html',
+        'www.example.com/contact.php?name=someName'
+      ];
+      inputs.forEach(i => {
+        it(testName(i), () => {
+          Validators.notUrl(i).should.not.be.ok;
+        });
+      });
+    });
+
+    describe('valid values', () => {
+      const inputs = [
+        '',
+        'string',
+        'Ben Smith',
+        '2523839',
+      ];
+      inputs.forEach(i => {
+        it(testName(i), () => {
+          Validators.notUrl(i).should.be.ok;
+        });
+      });
+    });
+  });
+
   describe('email', () => {
 
     describe('invalid values', () => {
