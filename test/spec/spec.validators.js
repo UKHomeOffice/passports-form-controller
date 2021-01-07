@@ -353,6 +353,7 @@ describe('Validators', () => {
 
     describe('valid values', function() {
       const inputs = [
+        '',
         '02079460000',
         '07900000000',
         '+442079460000',
